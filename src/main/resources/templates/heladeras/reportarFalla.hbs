@@ -1,0 +1,44 @@
+{{#partial "contenido"}}
+    <div class="pt-5"></div>
+    <div class="m-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-10">
+                <h1 class="title text-center mb-3">Reportar falla</h1>
+                <p class=" mb-5 text-center">Si has detectado un problema con la heladera, por favor completa el siguiente formulario para reportar la falla. Asegúrate de proporcionar una descripción clara del incidente y seleccionar el tipo de falla que estás reportando. Esto nos permitirá atender tu reporte de manera más eficiente y asegurar el correcto funcionamiento de la heladera.</p>
+                <form id="uploadForm" method="POST" action="/heladeras/reporteFallas/{{heladeraId}}">
+                    <div class="mt-3">
+                        <div class="col-12">
+                            <div class="input-group">
+                                <div class="input-group-text selection">Tipo de falla</div>
+                                <select id="tiposFalla" name="tipoFalla" class="custom-select">
+                                    <option value="FALLA_TECNICA">Falla técnica</option>
+                                    <option value="FALLA_TEMPERATURA">Fallo en la temperatura</option>
+                                    <option value="FRAUDE">Posible fraude</option>
+                                    <option value="FALLA_CONEXION">Falla en la conexión</option>
+                                </select>
+                            </div>
+                        </div>
+                        <h4 class="fw-bold fs-5 mt-3">Descripción</h4>
+                        <textarea class="form-control textarea" id="descripcionFalla" name="descripcion" rows="8" required></textarea>
+                        <div class="col-12 mt-3">
+                            <button id="submitButton" type="submit" class="w-100">Reportar</button>
+                        </div>
+                    </div>
+                    {{#if error}}
+                        <div class="row mt-2 justify-content-center">
+                            <p class="error text-center">{{error}}</p>
+                        </div>
+                    {{/if}}
+                    {{#if success}}
+                        <div class="alert mt-4 alert-success text-center" role="alert">
+                            {{success}}
+                        </div>
+                    {{/if}}
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="/js/manejadorFormulario.js"></script>
+{{/partial}}
+
+{{> templates/base titulo="Reportar falla" mostrarSeccion=true seccion="Reportar falla" mostrarIrAtras=true paginaAtras="/heladeras" mostrarPersonaHumana=true}}

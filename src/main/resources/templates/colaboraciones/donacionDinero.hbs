@@ -1,0 +1,45 @@
+{{#partial "contenido"}}
+    <div class="pt-5"></div>
+    <div class="m-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-12">
+                <h1 class="title text-center">{{title}}</h1>
+                <div class="pt-5 pb-4"></div> <!-- separador -->
+                <form id="uploadForm" method="POST" action="{{#if edicion}}/donacionDinero/{{id}}/edicion{{else}}/donacionDinero{{/if}}">
+                    <div class="mt-3">
+                        <div class="col-12">
+                            <input type="number" name="monto" step="any" value="{{dto.monto}}" placeholder="Monto (en pesos argentinos)" class="w-100">
+                        </div>
+                        <div class="col-12 mt-2">
+                            <div class="input-group">
+                                <div class="input-group-text selection">Frecuencia</div>
+                                <select name="unidadFrecuencia" class="custom-select">
+                                    <option value="NINGUNA" {{#ifEqual dto.unidadFrecuencia 'NINGUNA'}}selected{{/ifEqual}}>Ninguna</option>
+                                    <option value="DIARIA" {{#ifEqual dto.unidadFrecuencia 'DIARIA'}}selected{{/ifEqual}}>Diaria</option>
+                                    <option value="SEMANAL" {{#ifEqual dto.unidadFrecuencia 'SEMANAL'}}selected{{/ifEqual}}>Semanal</option>
+                                    <option value="MENSUAL" {{#ifEqual dto.unidadFrecuencia 'MENSUAL'}}selected{{/ifEqual}}>Mensual</option>
+                                    <option value="ANUAL" {{#ifEqual dto.unidadFrecuencia 'ANUAL'}}selected{{/ifEqual}}>Anual</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button id="submitButton" type="submit" class="w-100">{{#if edicion}}Actualizar{{else}}Donar{{/if}}</button>
+                        </div>
+                    </div>
+                    {{#if error}}
+                        <div class="row mt-2 justify-content-center">
+                            <p class="error text-center">{{error}}</p>
+                        </div>
+                    {{/if}}
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="/js/manejadorFormulario.js"></script>
+{{/partial}}
+{{> templates/base
+        titulo="Donacion de dinero"
+        mostrarSeccion=true
+        seccion="Donación de dinero"
+        mostrarIrAtras=true
+        paginaAtras="/donacionDinero" }}

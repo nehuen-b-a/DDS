@@ -1,0 +1,153 @@
+{{#partial "contenido"}}
+    <div class="m-5">
+        <div class="row justify-content-center">
+            <form id="uploadForm" method="POST" action="{{#if edicion}}/perfil{{else}}/personaHumana{{/if}}">
+                <input type="hidden" id="solicitaTarjeta" name="solicitaTarjeta" value="">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="fw-bold fs-5 mb-0">Información básica</h4>
+                            <p class="mb-0">Ingresá tus datos personales</p>
+                        </div>
+                        {{#if edicion}}
+                            <button type="button" class="custom-small-button" id="deleteButton" onclick="openModal('{{dto.id}}', 'personaHumana', '{{dto.nombre}} {{dto.apellido}}')">Eliminar mi cuenta</button>
+                        {{/if}}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="nombre" type="text" class="w-100" required pattern="^[A-Z][a-zA-ZáéíóúñÑ\s]{1,49}$" placeholder="Nombre" title="El nombre debe comenzar con mayúscula y tener entre 2 y 50 caracteres." value="{{dto.nombre}}">
+                    </div>
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="apellido" type="text" class="w-100" required pattern="^[A-Z][a-zA-ZáéíóúñÑ\s]{1,49}$" placeholder="Apellido" title="El apellido debe comenzar con mayúscula y tener entre 2 y 50 caracteres." value="{{dto.apellido}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input class="w-100" name="fechaNacimiento" type="text" id="fechaNacimiento" placeholder="Fecha de nacimiento" onfocus="(this.type='date')" onfocusout="(this.type='text' )" min="1910-01-01" max="2024-12-31" value="{{dto.fechaNacimiento}}">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="input-group">
+                            <select id="documentos" name="tipoDocumento" class="custom-select">
+                                <option {{#ifEqual dto.documentoDTO.tipoDocumento "DNI"}}selected{{/ifEqual}} value="DNI">DNI</option>
+                                <option {{#ifEqual dto.documentoDTO.tipoDocumento "LC"}}selected{{/ifEqual}} value="LC">Libreta cívica</option>
+                                <option {{#ifEqual dto.documentoDTO.tipoDocumento "LE"}}selected{{/ifEqual}} value="LE">Libreta de enrolamiento</option>
+                                <option {{#ifEqual dto.documentoDTO.tipoDocumento "PASAPORTE"}}selected{{/ifEqual}} value="PASAPORTE">Pasaporte</option>
+                            </select>
+                            <input type="text" class="custom-input" name="nroDocumento" placeholder="Número de documento" required value="{{dto.documentoDTO.nroDocumento}}">
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="fw-bold fs-5 mt-5">Medios de contacto</h4>
+                <p class="mb-3">Indicá al menos un medio de contacto.</p>
+
+                <div class="row mb-3">
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <input name="whatsapp" type="number" class="w-100" placeholder="WhatsApp" pattern="^[0-9]{10,15}$" title="Formato: +549XXXXXXXXX" value="{{dto.contactoDTO.whatsapp}}">
+                    </div>
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <input name="telegram" type="text" class="w-100" placeholder="Telegram" pattern="^[a-zA-Z0-9_]{5,32}$" title="Formato: @usuario o usuario" value="{{dto.contactoDTO.telegram}}">
+                    </div>
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <input name="correo" type="email" class="w-100" placeholder="Correo electrónico" title="Por favor, ingrese un correo electrónico válido." value="{{dto.contactoDTO.correo}}">
+                    </div>
+                </div>
+
+                <h4 class="fw-bold fs-5 mt-5">Dirección</h4>
+                <p class="mb-3">Si lo deseás, ingresá tu domicilio. En caso de proporcionarlo, asegurate de incluir todos los datos indicados.</p>
+                <div class="row mb-3">
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="calle" type="text" class="w-100 necesarioParaTarjeta" placeholder="Calle" aria-label="Calle" pattern="^[A-Z][a-zA-ZáéíóúñÑ. ]{1,49}$" value="{{dto.direccionDTO.calle}}">
+                    </div>
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="altura" type="number" class="w-100 necesarioParaTarjeta" placeholder="Altura" aria-label="Altura" value="{{dto.direccionDTO.altura}}">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="provincia" type="text" class="w-100 necesarioParaTarjeta" placeholder="Provincia" aria-label="Provincia" pattern="^[A-Za-zÀ-ÿ]+(?: [A-Za-zÀ-ÿ]+)*$" value="{{dto.direccionDTO.provincia}}">
+                    </div>
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="municipio" type="text" class="w-100 necesarioParaTarjeta" placeholder="Municipio" aria-label="Municipio" pattern="^[A-Za-zÀ-ÿ0-9]+(?: [A-Za-zÀ-ÿ0-9]+)*$" value="{{dto.direccionDTO.municipio}}">
+                    </div>
+                </div>
+
+                <h4 class="fw-bold fs-5 mt-5">Formas de colaboración</h4>
+                <p class="mb-3">Seleccioná en qué formas deseas colaborar. Para realizar algunas de ellas, necesitará una tarjeta especial que le proporcionaremos en su dirección.</p>
+                <div class="row mb-3" id="formasColaboracion">
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <label class="form-check d-flex justify-content-between w-100 choice" for="donacionDinero">
+                            <span class="fw-bold">Donar dinero</span>
+                            <input class="form-check-input" type="checkbox" name="formaColaboracion" id="donacionDinero" data-tarjeta="" value="DONACION_DINERO" {{#if dto.donacionDinero}}checked{{/if}}>
+                        </label>
+                    </div>
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <label class="form-check d-flex justify-content-between w-100 choice" for="redistribucionViandas">
+                            <span class="fw-bold">Distribuir viandas</span>
+                            <input class="form-check-input" type="checkbox" name="formaColaboracion" id="redistribucionViandas" data-tarjeta="X" value="REDISTRIBUCION_VIANDAS" {{#if dto.redistribucionViandas}}checked{{/if}}>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <label class="form-check d-flex justify-content-between w-100 choice" for="donacionViandas">
+                            <span class="fw-bold">Donar viandas</span>
+                            <input class="form-check-input" type="checkbox" name="formaColaboracion" id="donacionViandas" data-tarjeta="X" value="DONACION_VIANDAS" {{#if dto.donacionViandas}}checked{{/if}}>
+                        </label>
+                    </div>
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <label class="form-check d-flex justify-content-between w-100 choice" for="entregaTarjetas">
+                            <span class="fw-bold">Entregar tarjetas</span>
+                            <input class="form-check-input" type="checkbox" name="formaColaboracion" id="entregaTarjetas" data-tarjeta="X" value="ENTREGA_TARJETAS" {{#if dto.entregaTarjetas}}checked{{/if}}>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <button id="submitButton" type="submit" class="w-100">{{#if edicion}}Actualizar datos personales{{else}}Registrar datos personales{{/if}}</button>
+                    </div>
+                </div>
+                {{#if error}}
+                    <div class="row mt-2 justify-content-center">
+                        <p id="error" class="error text-center">{{error}}</p>
+                    </div>
+                {{/if}}
+            </form>
+        </div>
+    </div>
+    <script src="/js/manejadorFormulario.js"></script>
+    <script src="/js/modalEliminacion.js"></script>
+    <script src="/js/confirmacion.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(function(){
+            if(requiereTarjeta()){
+                $(".necesarioParaTarjeta").attr("required", "required");
+            }
+        });
+
+        function requiereTarjeta(){
+            return $("[data-tarjeta='X']").is(":checked");
+        }
+
+        $("[data-tarjeta]").on("click", function(){
+            if($("[data-tarjeta='X']:checked").length){
+                $(".necesarioParaTarjeta").attr("required", "required");
+            }else{
+                $(".necesarioParaTarjeta").removeAttr("required");
+            }
+        });
+
+        $(document).on("submit", function(){
+            $("#solicitaTarjeta").val(requiereTarjeta() ? "X" : "");
+        });
+    </script>
+{{/partial}}
+
+{{> templates/base titulo="Mis datos personales" mostrarSeccion=true seccion="Mis datos personales"}}

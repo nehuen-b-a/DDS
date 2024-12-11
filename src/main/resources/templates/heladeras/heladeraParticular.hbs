@@ -1,0 +1,111 @@
+{{#partial "contenido"}}
+    <section class="row g-2 gx-4 flex-grow-1 mt-5 ms-sm-5 me-sm-5 mt-3 ms-3 me-3">
+        <nav class="col-md-4 sidebar">
+            <div class="row p-4 border border-color-999 rounded-4">
+                <h1 class="fs-3 mt-3 mb-3">{{heladera.nombre}}</h1>
+                <p class="mb-2">{{heladera.direccion.nomenclatura}}.</p>
+                <p class="mb-2">Capacidad total: {{heladera.capacidadMaximaViandas}} viandas.</p>
+                <p>Estado actual: {{heladera.estado}}.</p>
+
+                {{#if hayViandas}}
+                    <h4 class="fw-bold fs-5 mt-4 mb-2">Viandas disponibles ({{heladera.viandas.length}})</h4>
+                    <p class="mb-2">Las viandas disponibles en la heladera son las siguientes</p>
+                    <div class="scrollable-Items mb-3">
+                        {{#each heladera.viandas}}
+                            <div class="card rounded-3 mt-2 mb-2">
+                                <div class="card-result-body">
+                                    <h5 class="card-result-title">{{this.comida}}</h5>
+                                    <p class="card-result-text">Fecha de vencimiento: {{this.fechaCaducidad}}</p>
+                                    <p class="card-result-text">Calorias: {{this.caloriasEnKcal}} kcal</p>
+                                    <p class="card-result-text">Peso: {{this.pesoEnGramos}} g</p>
+                                </div>
+                            </div>
+                        {{/each}}
+                    </div>
+                {{/if}}
+            </div>
+            {{#if mostrarPersonaHumana}}
+                <div class="row p-4 mt-3 border border-color-999 rounded-4">
+                    <form method="POST" action="/heladeras/suscripcion/{{heladera.id}}" class="mt-2 w-100">
+                        <h2 class="fw-bold fs-4 mb-2">Suscripción a la heladera</h2>
+                        <p class="mb-3">Seleccione las opciones por las cuales desea recibir notificaciones sobre la heladera. No es necesario completar todas; elija solo aquellas que prefiera.</p>
+                        <div class="row mb-2">
+                            <div class="col-12">
+                                <div class="input-group w-100">
+                                    <div class="input-group-text selection custom-select">Quedan N Viandas</div>
+                                    <input type="text" class="custom-input" id="quedanNViandas" name="quedanNViandas" placeholder="Cantidad viandas" value="{{quedanNViandas}}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-12">
+                                <div class="input-group">
+                                    <div class="input-group-text selection custom-select">Faltan N Viandas</div>
+                                    <input type="text" class="custom-input" id="faltanNViandas" name="faltanNViandas" placeholder="Cantidad viandas" value="{{faltanNViandas}}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-12">
+                                <label class="form-check d-flex justify-content-between w-100 choice" for="desperfecto">
+                                    <span class="fw-bold">Desperfecto</span>
+                                    <input class="form-check-input" type="checkbox" name="desperfecto" id="desperfecto" value="true" {{#if desperfecto}}checked{{/if}}>
+                                </label>
+                            </div>
+                        </div>
+                        {{#if actualizacion}}
+                            <div class="text-pill light-light-blue">
+                                Ya estas suscripto a esta heladera
+                            </div>
+                        {{/if}}
+                        <div class="col-12 mt-2 mb-3">
+                            <button class="w-100">{{#if actualizacion}}Editar suscripción{{else}}Suscribirme{{/if}}</button>
+                        </div>
+                    </form>
+                    {{#if error}}
+                        <div class="row mt-2 justify-content-center">
+                            <p class="error text-center">{{error}}</p>
+                        </div>
+                    {{/if}}
+                </div>
+                <div class="row mt-4 mb-2 text-center">
+                    <hr>
+                    <label class="grey-text fw-bold w-100">
+                        ¿La heladera presenta algún problema?
+                        <a href="/heladeras/reporteFallas/{{heladera.id}}/nuevo" class="light-blue">Reportar una falla</a>.
+                    </label>
+                </div>
+            {{/if}}
+        </nav>
+        <main class="col-md-8 d-flex flex-column">
+            <div id="map"></div>
+        </main>
+    </section>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var heladera = {{{jsonHeladera}}};  // Triple mustache para evitar escaping y pasar datos correctamente
+
+            if (heladera && heladera.direccion && heladera.direccion.coordenada) {
+                // Obtén las coordenadas de la heladera
+                var lat = parseFloat(heladera.direccion.coordenada.latitud);
+                var lng = parseFloat(heladera.direccion.coordenada.longitud);
+
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    // Agrega un marcador y enfoca el mapa en la heladera
+                    addMarker(heladera, function() {
+                        map.flyTo({ center: [lng, lat], zoom: 15 });
+                    });
+
+                    // Enfoca el mapa cuando se carga
+                    map.flyTo({ center: [lng, lat], zoom: 15 });
+                } else {
+                    console.log("Coordenadas inválidas para la heladera");
+                }
+            } else {
+                console.log("Datos de heladera incompletos");
+            }
+        });
+    </script>
+{{/partial}}
+
+{{> templates/base titulo=heladera.nombre mostrarMapa=true buscadorMapa=true mostrarSeccion=true seccion=heladera.nombre mostrarIrAtras=true paginaAtras="/heladeras"}}

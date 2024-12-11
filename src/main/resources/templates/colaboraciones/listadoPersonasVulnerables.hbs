@@ -1,0 +1,60 @@
+{{#partial "contenido"}}
+    <div class="mt-5 ms-sm-5 me-sm-5 mt-3 pb-3 ms-3 me-3 mb-5">
+        <div class="d-flex justify-content-end mb-3 align-items-center flex-wrap">
+            <a href="/personasVulnerables/nuevo" class="me-2">
+                <label class="d-flex align-items-center justify-content-center boton">
+                    Registrar persona vulnerable
+                    <span class="iconify ms-2" data-icon="material-symbols:add" data-width="24" data-height="24"></span>
+                </label>
+            </a>
+            <a href="/personasVulnerables/solicitudTarjetas" class="me-2">
+                <label class="d-flex align-items-center justify-content-center boton">
+                    Solicitar tarjetas para entregar
+                    <span class="iconify ms-2" data-icon="mynaui:credit-card-plus-solid" data-width="24" data-height="24"></span>
+                </label>
+            </a>
+        </div>
+        <div class="row g-3">
+            {{#each personasVulnerables}}
+                <div class="col-md-4 position-relative">
+                    <button type="button" class="delete position-absolute top-0 end-0 me-2" onclick="openModal('{{this.id}}', 'personaVulnerable', '{{this.nombre}} {{this.apellido}}')">
+                        <span class="iconify" data-icon="mdi:remove" data-width="18" data-height="18"></span>
+                    </button>
+                    <a href="/personasVulnerables/{{this.id}}/edicion" class="dark-text">
+                        <div class="distribution-card">
+                            <div class="row mb-2">
+                                <span class="d-flex fw-bold fs-5">{{this.nombre}} {{this.apellido}}</span>
+                            </div>
+                            {{#if this.documento.numero}}
+                            <div class="row mb-2">
+                                <span><strong>{{this.documento.tipo}}:</strong> {{this.documento.numero}}</span>
+                            </div>
+                            {{/if}}
+                            <div class="row mb-2">
+                                <span><strong>Fecha nacimiento:</strong> {{this.fechaDeNacimiento}}</span>
+                            </div>
+                            {{#if this.direccion.nomenclatura}}
+                                <div class="row mb-2">
+                                    <span><strong>Dirección:</strong> {{this.direccion.nomenclatura}}</span>
+                                </div>
+                            {{/if}}
+                            {{#if this.menoresAcargo}}
+                                <div class="row mb-2">
+                                    <span><strong>Cantidad de menores a cargo:</strong> {{this.menoresAcargo}}</span>
+                                </div>
+                            {{/if}}
+                            <div class="row mb-2">
+                                <span><strong>Fecha registro:</strong> {{this.fechaDeRegistro}}</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+    <script src="/js/modalEliminacion.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{{/partial}}
+
+{{> templates/base titulo="Personas vulnerables" mostrarPersonaHumana=true mostrarIrAtras=true paginaAtras="/" mostrarSeccion=true seccion="Personas vulnerables"}}

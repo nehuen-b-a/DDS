@@ -1,0 +1,63 @@
+{{#partial "contenido"}}
+    <div class="mt-5 ms-sm-5 me-sm-5 mt-3 pb-3 ms-3 me-3 mb-5">
+        <div class="d-flex justify-content-end mb-3 align-items-center">
+            <a href="/distribucionVianda/nuevo" class="d-flex align-items-center justify-content-center boton">
+                Distribuir viandas
+                <span class="iconify ms-2" data-icon="material-symbols:add" data-width="24" data-height="24"></span>
+            </a>
+        </div>
+
+        <div class="row g-3 mt-">
+
+            {{#each distribuciones}}
+                <div class="col-md-4">
+                    <div class="distribution-card clic-card">
+                        <a href="/distribucionVianda/{{this.id}}/edicion" class="dark-text">
+                            <div class="row mb-2">
+                                <span class="flex-row-reverse d-flex color-777">{{this.fecha}}</span>
+                            </div>
+                            <div class="row mb-2">
+                                <span><strong>Origen:</strong> {{this.heladeraOrigenNombre}}</span>
+                            </div>
+                            <div class="row mb-2">
+                                <span><strong>Destino:</strong> {{this.heladeraDestinoNombre}}</span>
+                            </div>
+                            <div class="row mb-2 {{#unless this.horaSolicitudEnOrigen}}invisible{{/unless}}">
+                                <span><strong>Inicio viaje al origen:</strong> {{this.horaSolicitudEnOrigen}}</span>
+                            </div>
+                            <div class="row mb-3 {{#unless this.horaSolicitudEnDestino}}invisible{{/unless}}">
+                                <span><strong>Inicio viaje al destino:</strong> {{this.horaSolicitudEnDestino}}</span>
+                            </div>
+                            <div class="row">
+                                <p class="d-flex flex-row-reverse mb-1">
+                                {{#unless this.horaSolicitudEnOrigen}}
+                                    <span class="ms-1">Sin comenzar</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"/></svg>
+                                {{/unless}}
+                                {{#if this.horaSolicitudEnOrigen}}
+                                    {{#unless this.horaSolicitudEnDestino}}
+                                        <span class="ms-1">Yendo al origen</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32"><path fill="currentColor" d="M16 3C8.832 3 3 8.832 3 16s5.832 13 13 13s13-5.832 13-13S23.168 3 16 3m0 2c6.087 0 11 4.913 11 11s-4.913 11-11 11S5 22.087 5 16S9.913 5 16 5m.72 4.594L15.28 11l4 4H9v2h10.28l-4 4l1.44 1.406l5.686-5.687l.72-.72l-.72-.72l-5.687-5.686z"/></svg>
+                                    {{/unless}}
+
+                                    {{#if this.horaSolicitudEnDestino}}
+                                        {{#if this.terminada}}
+                                            <span class="ms-1">Completado</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"/></svg>
+                                        {{else}}
+                                            <span class="ms-1">Yendo al destino</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32"><path fill="currentColor" d="M16 3C8.832 3 3 8.832 3 16s5.832 13 13 13s13-5.832 13-13S23.168 3 16 3m0 2c6.087 0 11 4.913 11 11s-4.913 11-11 11S5 22.087 5 16S9.913 5 16 5m-.72 4.594L9.595 15.28l-.72.72l.72.72l5.687 5.686L16.72 21l-4-4H23v-2H12.72l4-4z"/></svg>
+                                        {{/if}}
+                                    {{/if}}
+                                {{/if}}
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+{{/partial}}
+
+{{> templates/base titulo="Distribución de viandas" mostrarSeccion=true seccion="Distribuir viandas" mostrarPersonaHumana=true mostrarIrAtras=true paginaAtras="/" }}

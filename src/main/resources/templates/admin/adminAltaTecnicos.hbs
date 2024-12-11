@@ -1,0 +1,88 @@
+{{#partial "contenido"}}
+    <div class="m-5">
+        <div id="uploadForm" class="row justify-content-center">
+            <form method="POST" {{#if edicion}}action="/tecnicos/{{id}}/edicion"{{else}}action="/tecnicos/"{{/if}}>
+                <h4 class="fw-bold fs-5">Información básica</h4>
+                <p class="mb-3">Ingresar los datos personales básicos del técnico.</p>
+
+                <div class="row mb-3">
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="nombre" type="text" class="w-100" required pattern="^[A-Z][a-zA-ZáéíóúñÑ]{1,49}$" placeholder="Nombre" title="El nombre debe comenzar con mayúscula y tener entre 2 y 50 caracteres." value="{{dto.nombre}}">
+                    </div>
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="apellido" type="text" class="w-100" required pattern="^[A-Z][a-zA-ZáéíóúñÑ]{1,49}$" placeholder="Apellido" title="El apellido debe comenzar con mayúscula y tener entre 2 y 50 caracteres." value="{{dto.apellido}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="cuil" type="text" class="w-100" required placeholder="CUIL" pattern="^\d{2}-\d{8}-\d{1}$" title="El CUIL debe seguir el formato XX-XXXXXXXX-X." value="{{dto.cuil}}">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="input-group">
+                            <select id="documentos" name="tipoDocumento" class="custom-select" >
+                                <option {{#ifEqual dto.documentoDTO.tipoDocumento "DNI"}}selected{{/ifEqual}}>DNI</option>
+                                <option {{#ifEqual dto.documentoDTO.tipoDocumento "LC"}}selected{{/ifEqual}} value="LC">LIBRETA CÍVICA</option>
+                                <option {{#ifEqual dto.documentoDTO.tipoDocumento "LE"}}selected{{/ifEqual}} value="LE">LIBRETA DE ENROLAMIENTO</option>
+                                <option {{#ifEqual dto.documentoDTO.tipoDocumento "PASAPORTE"}}selected{{/ifEqual}} value="PASAPORTE">PASAPORTE</option>
+                            </select>
+                            <input type="text" class="custom-input" name="nroDocumento" placeholder="Número de documento" required value="{{dto.documentoDTO.nroDocumento}}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12 col-md-12 mb-2 mb-md-0">
+                        <input name="radio" type="number" class="w-100" placeholder="Radio máximo en kilómetros para ser avisado" required min="1" step="0.01" title="El radio debe ser un número mayor a 0, con hasta dos decimales." value="{{dto.radioMaximoParaSerAvisado}}">
+                    </div>
+                </div>
+
+                <h4 class="fw-bold fs-5 mt-5">Medios de contacto</h4>
+                <p class="mb-3">Indicar al menos un medio de contacto.</p>
+
+                <div class="row mb-3">
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <input name="whatsapp" type="number" class="w-100" placeholder="WhatsApp" pattern="^[0-9]{10,15}$" title="Formato: +549XXXXXXXXX" value="{{dto.contactoDTO.whatsapp}}">
+                    </div>
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <input name="telegram" type="text" class="w-100" placeholder="Telegram" pattern="^[a-zA-Z0-9_]{5,32}$" title="Formato: @usuario o usuario" value="{{dto.contactoDTO.telegram}}">
+                    </div>
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <input name="correo" type="email" class="w-100" placeholder="Correo electrónico" title="Por favor, ingrese un correo electrónico válido." value="{{dto.contactoDTO.correo}}">
+                    </div>
+                </div>
+
+                <h4 class="fw-bold fs-5 mt-5">Dirección</h4>
+                <p class="mb-3">La dirección es un campo obligatorio. Por favor, asegúrese de completarlo correctamente.</p>
+                <div class="row mb-3">
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="calle" type="text" class="w-100" placeholder="Calle" required pattern="^[A-Za-z0-9áéíóúñÑ ]{2,50}$" title="La calle debe tener entre 2 y 50 caracteres." value="{{dto.direccionDTO.calle}}">
+                    </div>
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="altura" type="number" class="w-100" placeholder="Altura" aria-label="Altura" min="1" required title="La altura debe ser un número mayor a 0." value="{{dto.direccionDTO.altura}}">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="provincia" type="text" class="w-100" placeholder="Provincia" pattern="^[A-Za-záéíóúñÑ ]{2,50}$" required title="La provincia debe tener entre 2 y 50 caracteres." value="{{dto.direccionDTO.provincia}}">
+                    </div>
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <input name="municipio" type="text" class="w-100" placeholder="Municipio" pattern="^[A-Za-záéíóúñÑ0-9 ]{2,50}$" required title="El municipio debe tener entre 2 y 50 caracteres." value="{{dto.direccionDTO.municipio}}">
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <button id="submitButton" class="w-100" type="submit">Dar de alta</button>
+                    </div>
+                </div>
+                {{#if error}}
+                    <div class="row mt-2 justify-content-center">
+                        <p id="error" class="error text-center">{{error}}</p>
+                    </div>
+                {{/if}}
+            </form>
+        </div>
+    </div>
+    <script src="../../js/manejadorFormulario.js"></script>
+{{/partial}}
+
+{{> templates/base titulo="Alta de técnicos" mostrarAdmin=true mostrarIrAtras=true paginaAtras="/tecnicos" mostrarSeccion=true seccion="Tecnicos" }}

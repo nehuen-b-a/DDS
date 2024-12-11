@@ -1,0 +1,6 @@
+<hibernate-configuration>
+    <session-factory>
+        <!-- Otras propiedades de configuración -->
+        <mapping package="ar.edu.utn.frba.dds.domain.entities"/>
+    </session-factory>
+</hibernate-configuration>

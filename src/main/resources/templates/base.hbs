@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{titulo}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="icon" href="/img/favicon-dark.png" type="image/png">
+</head>
+<body>
+<div class="wrapper">
+    <header class="main-navbar">
+        <div class="d-flex align-items-center justify-content-between ms-sm-5 me-sm-5 mt-3 pb-3 ms-3 me-3">
+            <div class="d-flex align-items-center">
+                {{#if mostrarIrAtras}}
+                    <a href="{{paginaAtras}}" class="d-inline-block dark-text me-4 d-flex align-items-center">
+                        <span class="iconify align-middle" data-icon="weui:back-filled" data-width="24" data-height="24"></span>
+                    </a>
+                {{/if}}
+                <div class="fw-bold fs-4 d-inline-block d-flex align-items-center">
+                    <a href="/" class="dark-text">SMAACVS</a>
+                    {{#if mostrarSeccion}}
+                        <span class="fw-normal ms-2">|</span>
+                        <span class="fw-medium fs-5 ms-2">{{seccion}}</span>
+                    {{/if}}
+                </div>
+            </div>
+
+            <div class="d-none d-md-flex gap-2 align-items-center">
+                {{#if mostrarInicioSesion}}
+                    <button class="alternative-button" onclick="window.location.href='/inicioSesion';">Iniciar sesión</button>
+                {{/if}}
+                {{#if mostrarRegistro}}
+                    <button onclick="window.location.href='/tipoCuenta';">Registrarse</button>
+                {{/if}}
+                {{#if mostrarAdmin}}
+                    <div class="dropdown">
+                        <button class="btn-dropdown dropdown-toggle" type="button" id="dropdownMenuButton-two" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="iconify" data-icon="material-symbols:admin-panel-settings-outline" data-width="24" data-height="24"></span>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton-two">
+                            <a class="dropdown-item" href="/cerrarSesion">Cerrar sesión</a>
+                        </div>
+                    </div>
+                {{/if}}
+                {{#if mostrarPersonaJuridica}}
+                    <div class="dropdown">
+                        <button class="btn-dropdown dropdown-toggle" type="button" id="dropdownMenuButton-two" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="iconify" data-icon="mingcute:building-2-line" data-width="24" data-height="24"></span>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton-two">
+                            <a class="dropdown-item" href="/perfil">Perfil</a>
+                            <a class="dropdown-item" href="/cerrarSesion">Cerrar sesión</a>
+                        </div>
+                    </div>
+                {{/if}}
+                {{#if mostrarPersonaHumana}}
+                    {{#if pantallaOfertas}}
+                        <span class="fs-6 pe-2">
+                            <strong>{{puntos}}</strong><span style="color: #888;"> puntos</span>
+                        </span>
+                    {{/if}}
+
+                    <div class="dropdown">
+                        <button class="btn-dropdown dropdown-toggle" type="button" id="dropdownMenuButton-two" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="iconify" data-icon="iconoir:user" data-width="24" data-height="24"></span>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton-two">
+                            <a class="dropdown-item" href="/perfil">Perfil</a>
+                            <a class="dropdown-item" href="/cerrarSesion">Cerrar sesión</a>
+                        </div>
+                    </div>
+                {{/if}}
+            </div>
+        </div>
+    </header>
+
+    {{#block "contenido"}}{{/block}}
+
+    {{#if mostrarMapa}}
+        <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+        <script src="/js/mapaDeHeladeras.js"></script>
+        {{#if buscadorMapa}}
+            <script src="/js/buscadorHeladeras.js"></script>
+        {{/if}}
+    {{/if}}
+    <div class="pt-5 pb-5"></div>
+    <footer class="mt-5 d-flex flex-wrap justify-content-between align-items-center py-4 border-top mt-auto p-5">
+        <div class="col-md-6 mb-0 text-muted">
+            <p class="fw-bold mb-1">&copy; 2024 SMAACVS</p>
+            <p class="mb-1">Universidad Tecnológica Nacional FRBA</p>
+            <p class="fst-italic mb-0">Diseño de Sistemas - Grupo 8 - Miércoles Noche</p>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end text-muted">
+            <div class="text-muted">
+                <h5 class="mb-3 fw-bold" style="font-size: 1rem;">Recursos</h5>
+                <a href="https://docs.google.com/document/d/13niiEppxrm8LjyrxmH5Pskrc7VVuPKWSFRi3WvhsXns/edit" target="_blank" class="nav-link px-2 mb-2 dark-grey-text" style="font-size: 0.875rem;">
+                    <span class="iconify me-2" data-icon="solar:document-bold" data-width="18" data-height="18"></span>Consigna
+                </a>
+                <a href="https://github.com/dds-utn/2024-tpa-mi-no-grupo-08" target="_blank" class="nav-link px-2 d-flex align-items-center mb-2 dark-grey-text" style="font-size: 0.875rem;">
+                    <span class="iconify me-2" data-icon="akar-icons:github-fill" data-width="18" data-height="18"></span>GitHub
+                </a>
+                <a href="mailto:mejora.acceso.alimentario@gmail.com" class="nav-link px-2 d-flex align-items-center mb-2 dark-grey-text" style="font-size: 0.875rem;">
+                    <span class="iconify me-2" data-icon="lets-icons:e-mail" data-width="18" data-height="18"></span>Correo
+                </a>
+            </div>
+        </div>
+    </footer>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

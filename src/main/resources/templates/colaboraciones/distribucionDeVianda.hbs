@@ -1,0 +1,115 @@
+{{#partial "contenido"}}
+<section class="row flex-grow-1  ms-sm-5 me-sm-5 mt-3 ms-3 me-3">
+    <!-- Sidebar -->
+    <nav class="col-md-4 p-4 sidebar border border-color-999 rounded-4 my-4">
+        <div class="pt-5 pb-2"></div> <!-- separador -->
+        <h1 class="fs-4 text-center mb-5">Distribuir viandas</h1>
+        {{#unless readonly}}
+            <div class="p-1 mb-2">
+                <div class="warning">
+                    <!-- Ícono y Título -->
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="iconify warning-icon me-2" data-icon="fe:warning"></span>
+                        <strong>Advertencia:</strong>
+                    </div>
+                    <!-- Mensaje -->
+                    {{#if dto.horaSolicitudEnOrigen}}
+                        <p class="mb-0">Tendrá 3 horas para ingresar las viandas en el destino.</p>
+                    {{else}}
+                        <p class="mb-0">Tendrá 3 horas para retirar las viandas del origen.</p>
+                    {{/if}}
+                </div>
+            </div>
+        {{/unless}}
+        <form {{#unless readonly}}  method="POST" action="/distribucionVianda/{{#if id}}{{id}}/{{#if dto.horaSolicitudEnDestino}}finalizacion{{else}}edicion{{/if}}{{/if}}" {{/unless}}>
+            {{#if dto.horaSolicitudEnOrigen}}
+                <div class="row mb-2">
+                    <label>Fecha: <span class="color-777">{{dto.fecha}}</span></label>
+                </div>
+                <div class="row mb-2">
+                    <label>Origen: <span class="color-777">{{dto.heladeraOrigenNombre}}</span></label>
+                </div>
+                <div class="row mb-2">
+                    <label>Destino: <span class="color-777">{{dto.heladeraDestinoNombre}}</span></label>
+                </div>
+                <div class="row mb-2">
+                    <label>Viandas a mover: <span class="color-777">{{dto.cantidadViandas}}</span></label>
+                </div>
+                <div class="row mb-3">
+                    <label>Hora en la que inició el viaje al origen: <span class="color-777">{{dto.horaSolicitudEnOrigen}}</span></label>
+                </div>
+                <div class="row mb-3 {{#unless dto.horaSolicitudEnDestino}}d-none{{/unless}}">
+                    <label>Hora en la que inició el viaje al destino: <span class="color-777">{{dto.horaSolicitudEnDestino}}</span></label>
+                </div>
+                <div class="{{#if dto.terminada}}invisible{{/if}}">
+                    <div class="row m-1">
+                        <button class="p-2">{{#if dto.horaSolicitudEnDestino}}Finalizar{{else}}Iniciar viaje a destino{{/if}}</button>
+                    </div>
+                </div>
+            {{else}}
+                <div class="col-12 mb-2">
+                    <input class="w-100" required type="text" id="heladeraOrigen" name="heladeraOrigen" data-id="heladeraOrigenId" placeholder="Seleccionar en el mapa" value="{{dto.heladeraOrigenNombre}}">
+                    <input type="hidden" name="heladeraOrigenId" id="heladeraOrigenId" value="{{dto.heladeraOrigenId}}">
+                </div>
+                <div class="col-12 mb-2">
+                    <input class="w-100" required type="text" id="heladeraDestino" name="heladeraDestino" data-id="heladeraDestinoId" placeholder="Seleccionar en el mapa" value="{{dto.heladeraDestinoNombre}}">
+                    <input type="hidden" name="heladeraDestinoId" id="heladeraDestinoId"  value="{{dto.heladeraDestinoId}}">
+                </div>
+                <div class="col-12 mb-2">
+                    <input class="w-100" required type="number" min=1 name="cantidadViandas" placeholder="Cantidad de viandas a mover" value={{dto.cantidadViandas}}>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="input-group">
+                        <div class="input-group-text selection">Motivo</div>
+                        <select id="motivo" name="motivo" class="custom-select">
+                            <option value="1">Desperfecto de heladera</option>
+                            <option value="2">Falta de viandas en destino</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 mb-2">
+                    <button class="w-100" type="submit">Comenzar ahora</button>
+                </div>
+            {{/if}}
+            {{#if error}}
+                <div class="row mt-2 justify-content-center">
+                    <p id="error" class="error text-center">{{error}}</p>
+                </div>
+            {{/if}}
+        </form>
+    </nav>
+
+    <!-- Mapa -->
+    <main class="col-md-8 p-4 d-flex flex-column">
+        <div id="map"></div>
+    </main>
+</section>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- Script para manejar el mapa y los datos de heladeras -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var heladeras = {{{this.jsonHeladeras}}};  // Triple mustache para evitar escaping y pasar datos correctamente
+
+        addMarkers(heladeras, function(){
+            // llena nombre e id en el campo de la heladera que tenga focus
+            var lv_input = $(":focus[id^='heladera']");
+            if(lv_input != undefined){
+                lv_input.val(this.heladera.nombre);
+                $("#"+lv_input.data("id")).val(this.heladera.id);
+                $(document.activeElement).parent().next().children(":not([type=hidden])").trigger("focus");
+            }
+        });
+
+        $("#heladeraOrigen, #heladeraDestino").on("change", function(){
+            if($(this).val() == ""){
+                $("#"+$(this).data("id")).val("");
+            }
+        });
+
+        $("#motivo option[value='{{dto.motivo}}']").attr("selected", "selected");
+    });
+</script>
+{{/partial}}
+
+{{> templates/base titulo="Distribución de viandas" mostrarMapa=true mostrarSeccion=true seccion="Distribuir viandas" mostrarPersonaHumana=true mostrarIrAtras=true paginaAtras="/distribucionVianda" }}

@@ -1,0 +1,456 @@
+@startuml diagramaEntidadRelacion.
+
+entity heladera {
+  * id: INTEGER(11) <<PK>>
+  --
+  * id_modelo: INTEGER(11) <<FK>>
+  * id_persona_juridica: INTEGER(11) <<FK>>
+  * nombre: VARCHAR(255)
+  * fechaRegistro: DATE
+  * capacidadMaximaViandas: : INTEGER(11)
+  * estado: ENUM
+  * temperaturaEsperada: DECIMAL
+  * provincia: VARCHAR(255)
+  * municipio: VARCHAR(255)
+  * calle: VARCHAR(255)
+  * altura: VARCHAR(4)
+}
+
+entity modelo {
+ * id: INTEGER(11) <<PK>>
+ --
+ * modelo: VARCHAR(255)
+ * temperaturaMinima: DECIMAL
+ * temperaturaMaxima: DECIMAL
+}
+
+entity cambio_estado {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_heladera: INTEGER(11) <<FK>>
+ * fechaCambio: DATE
+ * estado: ENUM
+}
+
+note bottom
+estado: FALLA_TEMPERATURA, ACTIVA, FRAUDE, FALLA_CONEXION, FALLA_TECNICA
+end note
+
+entity cambio_temperatura {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_heladera: INTEGER(11) <<FK>>
+ * fechaCambio: DATE
+ * temperaturaEnCelsius: DECIMAL
+}
+
+entity solicitud_apertura {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_heladera: INTEGER(11) <<FK>>
+ * id_tarjeta: INTEGER(11) <<FK>>
+ * fechaSolicitud: DATE
+ * aperturaConcretada: BIT(1)
+ * fechaConcrecion: DATE
+ * accion: ENUM
+ * cantidadViandas: NUMBER
+}
+note right
+accion: QUITAR_VIANDA, INGRESAR_VIANDA
+end note
+
+entity tarjeta {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_colaborador_donador: INTEGER(11) <<FK>>
+ * id_persona_vulnerable: INTEGER(11) <<FK>>
+ * codigo: VARCHAR(255)
+ * fechaRecepcionColaborador: DATE
+  fechaRecepcionPersonaVulnerable: DATE
+  fechaBaja: DATE
+ * id_colaborador_repartidor: INTEGER(11) <<FK>>
+}
+
+entity uso_tarjeta {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_heladera: INTEGER(11) <<FK>>
+ * id_tarjeta: INTEGER(11) <<FK>>
+ * fechaUso: DATE
+}
+
+entity vianda {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_persona_humana: INTEGER(11) <<FK>>
+ * fechaCaducidad: DATE
+ * entregada: BIT(1)
+ * comida: VARCHAR(255)
+ * pesoEnGramos: DECIMAL
+ * fechaDonacion: DATE
+ caloriasEnKcal: DECIMAL()
+}
+
+entity persona_vulnerable {
+ * id: INTEGER(11) <<PK>>
+ --
+ * nombre: VARCHAR(255)
+ * fechaDeNacimiento: DATE
+ * fechaDeRegistro: DATE
+ menoresACargo: INTEGER(2)
+ tipo_documento : ENUM
+ nro_documento : VARCHAR(50)
+ provincia: VARCHAR(255)
+ municipio: VARCHAR(255)
+ calle: VARCHAR(255)
+ altura: VARCHAR(4)
+ id_persona_que_lo_registro: INTEGER(11): <<FK>>
+ id_tarjeta_en_uso: INTEGER(11): <<FK>>
+}
+
+entity persona_humana {
+  * id : INTEGER(11) <<PK>>
+  --
+  * id_usuario: INTEGER(11) <<FK>>
+  whatsapp: VARCHAR(255)
+  mail: VARCHAR(255)
+  userTelegram: VARCHAR(255)
+  * medioPreferido: VARCHAR(255)
+  * tipo_documento : ENUM
+  * nro_documento : VARCHAR(50)
+  * nombre: VARCHAR(255)
+  * apellido: VARCHAR(255)
+  fechaNacimiento: DATE
+  provincia: VARCHAR(255)
+  municipio: VARCHAR(255)
+  calle: VARCHAR(255)
+  altura: VARCHAR(4)
+
+}
+
+entity formas_de_contribucion_humana {
+    '* id: INTEGER(11) <<PK>>
+    * id_persona_humana: INTEGER(11) <<FK>>
+    * formaContribucion: ENUM
+}
+note right
+formaContribucion: DISTRIBUCION_VIANDAS, DONACION_DINERO, DONACION_VIANDA, ENTREGA_TARJETAS
+end note
+
+entity formas_de_contribucion_juridica {
+    '* id: INTEGER(11) <<PK>>
+    * id_persona_juridica:  INTEGER(11) <<FK>>
+    * formaContribucion: ENUM
+}
+
+entity respuesta{
+  *id: INTEGER(11) <<PK>>
+  --
+  *id_pregunta: INTEGER(11) <<FK>>
+  *id_personaHumana: INTEGER(11) <<FK>>
+  *respuesta_libre: TEXT
+}
+
+entity opcion_respuesta{
+ * id_respuesta: INTEGER(11) <<PK, FK>>
+ * id_opcion: INTEGER(11) <<PK, FK>>
+ --
+}
+
+entity pregunta{
+ * id : INTEGER(11) <<PK>>
+ --
+ * tipo: ENUM
+ * campo: TEXT
+ * activa: BIT(1)
+}
+
+entity opcion_pregunta{
+ * id_pregunta: INTEGER(11) <<PK, FK>>
+ * id_opcion: INTEGER(11) <<PK, FK>>
+ --
+}
+
+entity opcion{
+ * id : INTEGER(11) <<PK>>
+ --
+ * campo : VARCHAR(100)
+}
+
+entity distribucion_vianda {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_personaHumana: INTEGER(11) <<FK>>
+ * id_heladeraOrigen: INTEGER(11) <<FK>>
+ * id_heladeraDestino: INTEGER(11) <<FK>>
+ * cantidadViandas: INTEGER(3)
+ * motivo: TEXT
+ * fecha: DATE
+ * terminada: BIT(1)
+}
+
+entity vianda_por_distribucion {
+ * id_distribucion_vianda: INTEGER(11) <<PK, FK>>
+ * id_vianda: INTEGER(11) <<PK, FK>>
+ --
+}
+
+entity donacion_dinero {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_persona_humana: INTEGER(11) <<FK>>
+ * id_persona_juridica: INTEGER(11) <<FK>>
+ * monto: DECIMAL
+ * frecuencia: INTEGER(3)
+ * unidadFrecuencia: ENUM
+ * fecha: DATE
+}
+
+note right
+unidadFrecuencia: NINGUNA, DIARIA, SEMANAL, MENSUAL, ANUAL
+end note
+
+entity persona_juridica {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_usuario: INTEGER(11) <<FK>>
+ * id_rubro: INTEGER(11) <<FK>>
+ whatsapp: VARCHAR(255)
+ mail: VARCHAR(255)
+ userTelegram: VARCHAR(255)
+ * medioPreferido: VARCHAR(255)
+ * razonSocial: VARCHAR(255)
+ * tipo: ENUM
+ * contribucionesElegidas: ENUM
+ provincia: VARCHAR(255)
+ municipio: VARCHAR(255)
+ calle: VARCHAR(255)
+ altura: VARCHAR(4)
+ 'En caso de poseer, puede indicar una dirección
+}
+
+entity oferta_canjeada {
+  *id_oferta: INTEGER(11) <<PK, FK>>
+  *id_persona_humana: INTEGER(11) <<PK, FK>>
+  --
+  * fecha_canje : DATETIME
+}
+
+entity oferta {
+  * id : INTEGER <<PK>>
+  --
+  * nombre : VARCHAR(255)
+  * cantidad_puntos_necesarios : DECIMAL
+  * id_rubro : INTEGER(11) <<FK>>
+  * id_persona_juridica : INTEGER(11) <<FK>>
+  * imagen_ruta: VARCHAR(255)
+}
+
+entity rubro {
+  * id : INTEGER(11) <<PK>>
+  --
+  * nombre : VARCHAR(255)
+}
+
+entity incidente {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_heladera: INTEGER(11) <<FK>>
+ * id_tecnico: INTEGER(11) <<FK>>
+ * id_alerta: INTEGER(11) <<FK>>
+ * fecha: DATE
+ * solucionado: BIT(1)
+ * tipo_incidente: ENUM
+ tipo_alerta: ENUM
+ id_personaHumana: INTEGER(11) <<FK>>
+ descripcion_del_colaborador: VARCHAR(255)
+ ruta_foto: VARCHAR(255)
+}
+
+note right
+tipo_incidente: ALERTA, FALLA_TECNICA
+tipo_alerta: FRAUDE, FALLA_CONEXION, FALLA_TEMPERATURA
+end note
+
+entity visita {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_incidente: INTEGER(11) <<FK>>
+ * descripcion: VARCHAR(255)
+ * foto_ruta: VARCHAR(255)
+}
+
+entity mensaje {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_destinatario: INTEGER(11) <<FK>>
+ * asunto: VARCHAR(255)
+ * cuerpo: TEXT
+ * fecha: DATE
+}
+
+entity usuario {
+ * id: INTEGER(11) <<PK>>
+ --
+ * id_rol: INTEGER(11) <<FK>>
+ * nombre: VARCHAR(255)
+ * clave: VARCHAR(255))
+}
+
+entity rol {
+ * id: INTEGER(11) <<PK>>
+ --
+ * nombre: VARCHAR(255)
+}
+
+entity rol_permiso {
+ * id_rol: INTEGER(11) <<PK, FK>>
+ * id_permiso: INTEGER(11) <<PK, FK>>
+ --
+}
+
+entity permiso {
+ * id: INTEGER(11) <<PK>>
+ --
+ * nombre: VARCHAR(255)
+}
+
+entity tecnico {
+  * id : INTEGER(11) <<PK>>
+  --
+  * nombre : VARCHAR(255)
+  * apellido : VARCHAR(255)
+  * tipo_documento : VARCHAR(50)
+  * nro_documento : VARCHAR(50)
+  * cuil : VARCHAR(50)
+  whatsapp: VARCHAR(255)
+  mail: VARCHAR(255)
+  userTelegram: VARCHAR(255)
+  * medioPreferido: VARCHAR(255)
+  * latitud : DOUBLE
+  * longitud : DOUBLE
+  * id_usuario: INTEGER(11) <<FK>>
+  * distancia_maxima_en_km_para_ser_avisado : DOUBLE
+}
+
+note right
+medio: WHATSAPP, TELEFONO, TELEGRAM, EMAIL
+end note
+
+entity sugerencia_heladeras {
+ * id : INTEGER(11) <<PK>>
+ --
+ * id_incidente: INTEGER(11) <<FK>>
+ * id_suscripcion: INTEGER(11) <<FK>>
+ * fechaRealizacion: DATE
+}
+
+entity sugerencia_distribucion {
+ * id_sugerencia_heladeras: INTEGER(11) <<PK, FK>>
+ * id_heladera: INTEGER(11) <<PK, FK>>
+ --
+}
+
+entity suscripcion {
+ * id : INTEGER(11) <<PK>>
+ --
+ * id_persona_humana: INTEGER(11) <<FK>>
+ * id_heladera: INTEGER(11) <<FK>>
+ * cantidadViandasFaltantes: INTEGER(11)
+ * cantidadViandasQueQuedan: INTEGER(11)
+ * tipoSuscripcion: ENUM
+}
+
+note right
+tipoSuscripcion: QuedanNViandas, FaltanNViandas, Desperfecto
+end note
+
+'TODO - Revisar: Quedo separado del resto del diagrama
+entity reporte {
+ * id : INTEGER(11) <<PK>>
+ --
+ * fechaAlta: DATE
+}
+
+entity tipo_reporte {
+ * id : INTEGER(11) <<PK>>
+ --
+ * id_reporte: INTEGER(11) <<FK>>
+ * tipoDeReporte: ENUM
+ * promedio: DECIMAL
+ * total: NUMBER
+ * urlArchivoPDF: VARCHAR(255)
+}
+
+suscripcion }o--|| heladera
+suscripcion }o--|| persona_humana
+
+tecnico |o--|| usuario
+
+heladera ||--o{ vianda
+heladera ||--o{ cambio_estado
+heladera ||--o{ cambio_temperatura
+heladera ||--o{ solicitud_apertura
+heladera ||--o{ uso_tarjeta
+heladera }o--|| modelo
+
+tarjeta ||--o{ uso_tarjeta
+tarjeta ||--o{ solicitud_apertura
+
+persona_humana ||--o{ distribucion_vianda
+persona_humana ||--o{ donacion_dinero
+persona_juridica ||--o{ donacion_dinero
+persona_humana ||--o{ vianda
+persona_humana ||--o{ tarjeta
+persona_humana ||--o{ vianda
+
+persona_vulnerable }o--|| persona_humana
+
+incidente ||--o{ visita
+incidente }o--|| heladera
+incidente }o--o| persona_humana
+
+oferta }o--|| rubro
+oferta_canjeada }o--|| oferta
+oferta_canjeada }o--|| persona_humana
+oferta }o--|| persona_juridica
+
+respuesta ||--o{ opcion_respuesta
+opcion ||--o{ opcion_respuesta
+pregunta ||--o{ respuesta
+pregunta ||--o{ opcion_pregunta
+opcion ||--o{ opcion_pregunta
+respuesta }o--|| persona_humana
+
+rol ||--|{ rol_permiso
+permiso ||--|{ rol_permiso
+rol ||--o{ usuario
+
+persona_humana ||--|| usuario
+
+mensaje }o--|| usuario
+
+sugerencia_heladeras ||--|{ sugerencia_distribucion
+heladera ||--o{ sugerencia_distribucion
+sugerencia_heladeras }o--|| suscripcion
+sugerencia_heladeras }o--|| incidente
+
+'heladera origen
+distribucion_vianda }o--|| heladera
+'heladera destino
+distribucion_vianda }o--|| heladera
+
+vianda_por_distribucion }o--|| distribucion_vianda
+vianda_por_distribucion }o--|| vianda
+
+persona_juridica ||--|| usuario
+persona_juridica ||--|| rubro
+persona_juridica ||--o{ heladera
+
+persona_humana ||--o{ formas_de_contribucion_humana
+persona_juridica ||--o{ formas_de_contribucion_juridica
+
+reporte ||--|{ tipo_reporte
+@enduml
+
+

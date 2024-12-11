@@ -1,0 +1,38 @@
+{{#partial "contenido"}}
+    <div class="pt-5"></div>
+    <div class="m-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-12">
+                <h1 class="title text-center">Solicitud tarjetas</h1>
+                <div class="pt-5 pb-4"></div>
+                <p>
+                    Por favor, ten en cuenta que la solicitud de tarjetas no funcionará si no has completado la dirección en el formulario disponible en
+                    <a href="/perfil">este enlace</a>.
+                </p>
+                <form id="uploadForm" method="POST" action="/personasVulnerables/solicitudTarjetas">
+                    <div class="mt-3">
+                        <div class="col-12">
+                            <input type="number" name="cantidad" placeholder="Cantidad de tarjetas" class="w-100" value="{{cantidad}}">
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button id="submitButton" type="submit" class="w-100">Solicitar</button>
+                        </div>
+                    </div>
+                    {{#if error}}
+                        <div class="row mt-2 justify-content-center">
+                            <p class="error text-center">{{error}}</p>
+                        </div>
+                    {{/if}}
+                    {{#if success}}
+                        <div class="alert mt-4 alert-success text-center" role="alert">
+                            {{success}}
+                        </div>
+                    {{/if}}
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="/js/manejadorFormulario.js"></script>
+{{/partial}}
+
+{{> templates/base titulo="Solicitud tarjetas" mostrarSeccion=true seccion="Solicitud tarjetas" mostrarPersonaHumana=true mostrarIrAtras=true paginaAtras="/personasVulnerables" }}

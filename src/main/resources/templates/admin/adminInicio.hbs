@@ -1,0 +1,35 @@
+{{#partial "contenido"}}
+    <div class="mt-5 ms-sm-5 me-sm-5 mt-3 pb-3 ms-3 me-3 mb-5">
+        <div class="row g-3 d-flex align-items-stretch">
+            <a class="col-md-12" href="/cargaMasiva/nuevo">
+                <div class="card-custom">
+                    <img src="/img/carga-masiva.png" alt="Carga masiva de colaboraciones">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Carga masiva de colaboraciones</h5>
+                        <p class="card-text mb-4">Sección para realizar la migración de los donantes que ya están registrados en el sistema, pero de forma masiva. Para facilitar y agilizar este proceso, se propone la importación de un archivo CSV, lo que permitirá que la carga de datos sea mucho más sencilla, eficiente y menos propensa a errores, al automatizar la incorporación de grandes volúmenes de información en una sola operación.</p>
+                    </div>
+                </div>
+            </a>
+            <a class="col-md-6 d-flex" href="/tecnicos">
+                <div class="card-custom flex-fill">
+                    <img src="/img/alta-tecnicos.png" alt="Alta de tecnicos">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Alta de técnicos</h5>
+                        <p class="card-text mb-4">Proceso para el registro de nuevos técnicos en el sistema. Este procedimiento permitirá la incorporación de técnicos, facilitando la gestión de sus datos personales y profesionales.</p>
+                    </div>
+                </div>
+            </a>
+            <a class="col-md-6 d-flex" href="/reportes">
+                <div class="card-custom flex-fill">
+                    <img src="/img/reportes-seguimiento.png" alt="Reportes de seguimiento">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Reportes de seguimiento</h5>
+                        <p class="card-text mb-4">Reportes generados semanalmente para llevar un seguimiento del trabajo realizado por todos los involucrados en la causa.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+{{/partial}}
+
+{{> templates/base titulo="Administración" mostrarAdmin=true mostrarSeccion=true seccion="Administración" }}

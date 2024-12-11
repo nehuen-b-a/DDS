@@ -1,0 +1,40 @@
+{{#partial "contenido"}}
+    <div class="pt-5"></div>
+    <div class="m-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-12">
+                <h1 class="title text-center">Agregar modelo</h1>
+                <div class="pt-5 pb-4"></div> <!-- separador -->
+                <form id="uploadForm" method="POST" action="/heladeras/modelos">
+                    <div class="mt-3">
+                        <div class="col-12">
+                            <input type="text" name="nombre" step="any" placeholder="Nombre" class="w-100" value="{{dto.nombre}}" required>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <input type="number" name="temperaturaMinima" class="w-100" placeholder="Temperatura mínima (en Celsius)" step="0.1" value="{{dto.temperaturaMinima}}" required>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <input type="number" name="temperaturaMaxima" class="w-100" placeholder="Temperatura máxima (en Celsius)" step="0.1" value="{{dto.temperaturaMaxima}}" required>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button id="submitButton" type="submit" class="w-100">Agregar modelo</button>
+                        </div>
+                    </div>
+                    {{#if error}}
+                        <div class="row mt-2 justify-content-center">
+                            <p class="error text-center">{{error}}</p>
+                        </div>
+                    {{/if}}
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="/js/manejadorFormulario.js"></script>
+{{/partial}}
+{{> templates/base
+        titulo="Agregar modelo de heladera"
+        mostrarSeccion=true
+        seccion="Agregar modelo de heladera"
+        mostrarPersonaJuridica=true
+        mostrarIrAtras=true
+        paginaAtras="/heladeras/nuevo" }}

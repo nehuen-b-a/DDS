@@ -1,0 +1,133 @@
+{{#partial "contenido"}}
+    <section class="row g-2 gx-4 flex-grow-1 mt-5 ms-sm-5 me-sm-5 mt-3 ms-3 me-3">
+        <nav class="col-md-4 p-4 sidebar border border-color-999 rounded-4">
+            <h1 class="fs-3 text-center mt-3 mb-5">Encargarse de heladera</h1>
+            <form class="mt-5" method="POST" action="/heladeras">
+                <h4 class="fw-bold fs-5 mb-2">Información básica</h4>
+                <p class="mb-2">Ingresar los datos básicos de la heladera.</p>
+                <div class="col-12 mb-2">
+                    <input type="text" class="w-100" name="nombre" placeholder="Nombre" value="{{dto.nombre}}" required>
+                </div>
+                <div class="col-12 mb-2">
+                    <input type="number" class="w-100" name="capacidadMaximaViandas" placeholder="Cantidad máxima de viandas" value="{{dto.capacidadMaximaViandas}}" min="1" required>
+                </div>
+
+                <h4 class="fw-bold fs-5 mt-4 mb-2">Ubicación</h4>
+                <p class="mb-2">
+                    Seleccione la ubicación en el <b>mapa</b> haciendo clic sobre el lugar deseado.
+                    También puede ingresar manualmente las coordenadas de latitud y longitud.
+                </p>
+                <div class="col mb-2">
+                    <input type="text" id="latitud" class="w-100" name="latitud" placeholder="Latitud" value="{{dto.latitud}}" required>
+                </div>
+                <div class="col mb-2">
+                    <input type="text" id="longitud" class="w-100" name="longitud" placeholder="Longitud" value="{{dto.longitud}}" required>
+                </div>
+
+                <h4 class="fw-bold mt-4 fs-5 mb-2">Información secundaria</h4>
+                <p class="mb-2">Estos datos sobre la heladera no son obligatorios, pero en caso de indicarlos, asegúrese de que la temperatura esperada esté indicada en grados Celsius.</p>
+                <div class="col-12 mt-2">
+                    <div class="input-group">
+                        <div class="input-group-text selection">Modelo</div>
+                        <select name="modelo" id="modelo" class="custom-select" required>
+                            <option value="" selected>Desconocido</option>>
+                            {{#each modelos}}
+                                <option value="{{this.id}}" {{#ifEqual modeloEdit this.modelo}}selected{{/ifEqual}}>{{this.modelo}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <p class="mt-1 grey-text">¿No encuentras el modelo? <a href="/heladeras/modelos/nuevo" class="light-blue">Agrega uno nuevo aquí</a>.</p>
+                </div>
+                <div class="col-12 mt-2">
+                    <input type="number" name="temperaturaEsperada" class="w-100" placeholder="Temperatura esperada (en Celsius)" value="{{dto.temperaturaEsperada}}" step="0.1">
+                </div>
+                <div class="col-12 mt-3">
+                    <button class="w-100" type="submit">Encargarse</button>
+                </div>
+
+                {{#if error}}
+                    <div class="row mt-2 justify-content-center">
+                        <p id="error" class="error text-center">{{error}}</p>
+                    </div>
+                {{/if}}
+
+                <div class="col-12 mt-5 mb-3 text-center">
+                    <hr>
+                    <label class="grey-text fw-bold w-100">
+                        ¿No estás seguro de dónde colocar tu heladera?
+                        <a href="/heladeras/nuevo/recomendacion" class="light-blue">Te sugerimos los mejores puntos</a>.
+                    </label>
+                </div>
+            </form>
+        </nav>
+        <main class="col-md-8 d-flex flex-column">
+            <div id="map"></div>
+        </main>
+    </section>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var heladeras = {{{this.jsonHeladeras}}}
+            var nuevaHeladera = null;
+
+            addMarkers(heladeras);
+
+            map.on('mouseenter', function () {
+                map.getCanvas().style.cursor = 'crosshair'; // Cambiar el cursor a crosshair
+            });
+
+            map.on('mouseleave', function () {
+                map.getCanvas().style.cursor = ''; // Restaurar el cursor original cuando el ratón sale del mapa
+            });
+
+            if(document.getElementById('longitud').value && document.getElementById('latitud').value){
+                agregarNuevaHeladera(document.getElementById('latitud').value
+                    , document.getElementById('longitud').value, '/img/favicon-dark.png');
+            }
+
+            document.querySelector("#modelo option[value='{{dto.modelo}}']").setAttribute("selected", "selected");
+
+            map.on('click', function (e) {
+                var lngLat = e.lngLat;
+                let customMarkerImage = '/img/favicon-dark.png';
+
+                if(nuevaHeladera == null){
+                    agregarNuevaHeladera(lngLat.lat, lngLat.lng, '/img/favicon-dark.png');
+                }else{
+                    moverHeladeraA(nuevaHeladera, lngLat.lat, lngLat.lng);
+                }
+            });
+
+            function agregarNuevaHeladera(lat, lng, rutaMarker) {
+                let customMarkerImage = '/img/favicon-dark.png';
+
+                nuevaHeladera = new mapboxgl.Marker({
+                    element: createCustomMarker(customMarkerImage),
+                    draggable: true // Permitir que el marcador sea arrastrable
+                })
+                    .setLngLat([lng, lat])
+                    .addTo(map);
+
+                // Evento 'dragend' para actualizar los campos de latitud y longitud al arrastrar el marcador
+                nuevaHeladera.on('dragend', function () {
+                    var lngLat = this.getLngLat();
+                    actualizarCoordenadas(lngLat.lat, lngLat.lng);
+                });
+
+                actualizarCoordenadas(lat, lng);
+            }
+
+            function actualizarCoordenadas(lat, lng){
+                document.getElementById('latitud').value = lat;
+                document.getElementById('longitud').value = lng;
+            }
+
+            function moverHeladeraA(heladera, lat, lng){
+                heladera.setLngLat([lng, lat]);
+                actualizarCoordenadas(coordenadas.lat, coordenadas.lng);
+            }
+        });
+    </script>
+    <script src="https://unpkg.com/htmx.org@2.0.2" integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ" crossorigin="anonymous"></script>
+{{/partial}}
+
+{{> templates/base titulo="Encargarse de una heladera" mostrarMapa=true mostrarSeccion=true seccion="Encargarse de una heladera" mostrarPersonaJuridica=true mostrarIrAtras=true paginaAtras="/" }}

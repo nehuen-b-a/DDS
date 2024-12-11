@@ -1,0 +1,103 @@
+{{#partial "contenido"}}
+    <section class="row flex-grow-1 ms-sm-5 me-sm-5 mt-3 ms-3 me-3">
+        <!-- Sidebar -->
+        <nav class="col-md-4 p-4 sidebar border border-color-999 rounded-4 my-4">
+            <div class="pt-4 pb-2"></div> <!-- separador -->
+            <h1 class="title text-center mb-5">{{title}}</h1>
+            {{#if readonly}}
+            {{else}}
+                <div class="p-2">
+                    <div class="warning">
+                        <!-- Ícono y Título -->
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="iconify warning-icon me-2" data-icon="fe:warning"></span>
+                            <strong>Advertencia:</strong>
+                        </div>
+                        <!-- Mensaje -->
+                        <p class="mb-0">Tenés 3 horas para ingresar la vianda en la heladera.</p>
+                    </div>
+                </div>
+            {{/if}}
+            <form class="p-3" id="uploadForm" method="POST" action="/donacionVianda">
+                {{#if readonly}}
+                    <div class="row mb-2">
+                        <label>Comida: <span class="color-777" id="heladeraSeleccionada">{{dto.comida}}</span></label>
+                        <input type="hidden" id="heladeraId" value="{{dto.heladeraId}}">
+                    </div>
+                    <div class="row mb-2">
+                        <label>Fecha de caducidad: <span class="color-777">{{dto.fechaCaducidad}}</span></label>
+                    </div>
+                    <div class="row mb-2">
+                        <label>Calorías en kcal: <span class="color-777">{{dto.caloriasEnKcal}}</span></label>
+                    </div>
+                    <div class="row mb-2">
+                        <label>Peso en gramos: <span class="color-777">{{dto.pesoEnGramos}}</span></label>
+                    </div>
+                {{else}}
+                    <div class="row mb-2">
+                        <input type="text" name="comida" placeholder="Descripción de la comida" required value="{{dto.descripcion}}">
+                    </div>
+                    <div class="row mb-2">
+                        <input type="text" id="heladeraSeleccionada" id="heladeraNombre" placeholder="Seleccionar heladera en el mapa" value="{{dto.heladeraNombre}}">
+                        <input type="hidden" name="heladeraId" id="heladeraId" required value="{{dto.heladeraId}}">
+                    </div>
+                    <div class="row mb-2 w-110">
+                        <input name="fechaCaducidad" type="text" required id="fechaCaducidad" placeholder="Fecha de caducidad" onfocus="(this.type='date')" onfocusout="(this.type='text')" min="1910-01-01" max="2024-12-31" value="{{dto.fechaCaducidad}}">
+                    </div>
+                    <div class="row mb-2">
+                        <input type="number" name="calorias" placeholder="Calorias (opcional)" value="{{dto.caloriasEnKcal}}">
+                    </div>
+                    <div class="row mb-2">
+                        <input type="number" name="peso" placeholder="Peso en gramos (opcional)" value="{{dto.pesoEnGramos}}">
+                    </div>
+                    <div class="row mb-2">
+                        <button type="submit" id="submitButton" class="w-100 button" >{{#if edicion}}Guardar cambios{{else}}Donar vianda{{/if}}</button>
+                    </div>
+                {{/if}}
+
+                {{#if error}}
+                    <div class="row mt-2 justify-content-center text-break">
+                        <p id="error" class="error text-center">{{error}}</p>
+                    </div>
+                {{/if}}
+            </form>
+        </nav>
+
+        <!-- Mapa -->
+        <main class="col-md-8 p-4 d-flex flex-column">
+            <div id="map"></div>
+        </main>
+    </section>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/js/manejadorFormulario.js"></script>
+    <script src="/js/deleteButton.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var heladeras = {{{this.jsonHeladeras}}}
+
+            addMarkers(heladeras, function(){
+                {{#unless readonly}}
+                    // llena nombre e id en el campo de la heladera que tenga focus
+                    selectMarker(this.heladera, "heladeraSeleccionada");
+                    $("#heladeraNombre").val(this.heladera.nombre);
+                    $("#heladeraId").val(this.heladera.id);
+                {{/unless}}
+            });
+
+
+
+            {{#if readonly}}
+                selectMarker(heladeras.find(h => h.id == document.getElementById('heladeraId').value), "heladeraSeleccionada");
+            {{else}}
+                $("#heladeraNombre").on("change", function(){
+                    if($(this).val() == ""){
+                        $("#heladeraId").val("");
+                    }
+                });
+            {{/if}}
+        });
+    </script>
+{{/partial}}
+
+{{> templates/base titulo="Donación de viandas" mostrarMapa= true mostrarSeccion=true seccion="Donación de viandas" mostrarPersonaHumana=true mostrarIrAtras=true paginaAtras="/donacionVianda" }}

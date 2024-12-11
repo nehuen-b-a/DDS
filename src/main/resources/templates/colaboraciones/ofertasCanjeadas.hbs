@@ -1,0 +1,23 @@
+{{#partial "contenido"}}
+
+    <div class="container mt-4">
+        <h1>Ofertas Canjeadas</h1>
+        <div class="row g-3">
+            <div class="col-md-12">
+                {{#each ofertasCanjeadas}}
+                    <div class="offer-card">
+                        <h4>{{this.oferta.nombre}}</h4>
+                        <p><strong>Fecha de Canje:</strong> {{this.fechaCanje}}</p>
+                        <p><strong>Puntos Gastados:</strong> {{this.oferta.cantidadPuntosNecesarios}}</p>
+                    </div>
+                {{else}}
+                    <p>No has canjeado ninguna oferta.</p>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+
+{{/partial}}
+
+{{> templates/base titulo="Mis ofertas canjeadas" mostrarPersonaHumana=true mostrarIrAtras=true paginaAtras="/ofertas" mostrarSeccion=true seccion="ofertas" pantallaOfertas = true}}
+

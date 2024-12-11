@@ -1,0 +1,107 @@
+@startuml
+!theme toy
+
+actor Colaborador as CLB
+participant "Broker" as BRK
+actor HeladeraFISOrigen as HFO
+actor HeladeraFISDestino as HFD
+participant "Capa Presentación" as CP
+participant "Capa Controlador" as CNT
+participant "DistribucionVianda" as DIS
+participant "Solicitud Apertura" as SLT
+participant "Heladera Origen" as HO
+participant "Heladera Destino" as HD
+
+CLB -> CP: Realiza Formulario de Distribucion
+CP-> CNT: envia DTO Distribución
+CNT-> DIS: Instancia Distribución
+activate DIS
+CNT -> HO: heladera.validarQuitaDeViandas()
+activate HO
+HO-> CNT: True : Boolean
+CNT -> CLB: Agrega al historial Distribución
+CNT -> SLT: Instancia Solicitud
+CNT -> HO: Agrega al historial Solicitud
+HO -> CNT: DTO SolicitudApertura
+CNT -> BRK: DTO SolicitudApertura
+BRK -> HFO: DTO SolicitudApertura
+note right: Demora de hasta 3hrs 
+HFO -> BRK: DTO RtaSolicitudApertura (Positiva)
+BRK -> CNT: DTO RtaSolicitudApertura (Positiva)
+
+CNT -> HD: heladera.validarAgregarViandas()
+activate HD
+HD-> CNT: True : Boolean
+CNT -> SLT: Instancia Solicitud
+CNT -> HD: Agrega al historial Solicitud
+HO -> CNT: DTO SolicitudApertura
+CNT -> BRK: DTO SolicitudApertura
+BRK -> HFD: DTO SolicitudApertura
+note right: Demora de hasta 3hrs 
+HFD -> BRK: DTO RtaSolicitudApertura (Positiva)
+BRK -> CNT: DTO RtaSolicitudApertura (Positiva)
+
+CNT -> CLB: Notificación de éxito de la distribución
+deactivate DIS
+
+
+/'
+participant "Sistema de Distribución" as SD
+participant "Heladera Origen" as HO
+participant "Heladera Destino" as HD
+
+Colaborador -> SD: Iniciar sesión (Sesión iniciada)
+activate Colaborador
+
+Colaborador -> SD: Detallar heladera de origen y destino, y motivo de distribución
+Colaborador -> SD: Tocar botón para comenzar la distribución
+activate SD
+SD -> SD: Validar heladera.cantidadViandasVirtual() < heladera.cantidadMáximaViandas
+SD -> SD: Agregar al historial de contribuciones del colaborador
+
+SD -> HO: Solicitud de apertura de heladera de origen (Empieza cronómetro 3 hs)
+Colaborador -> HO: Dirigirse a heladera de origen y verificar solicitud
+HO -> HO: Verificar solicitud válida
+Colaborador -> HO: Abrir heladera de origen y sacar viandas
+Colaborador -> SD: quitarViandasDeOrigen()
+note right: Llama al método para quitar viandas efectivamente sacadas
+SD -> HO: quitarViandasDeOrigen()
+
+SD -> HD: Solicitud de apertura de heladera de destino (Empieza cronómetro 3 hs)
+Colaborador -> HD: Dirigirse a heladera de destino y verificar solicitud
+HD -> HD: Verificar solicitud válida
+Colaborador -> HD: Ingresar viandas a heladera de destino
+Colaborador -> SD: ponerViandasDeDestino()
+note right: Llama al método para poner viandas en heladera de destino
+SD -> HD: ponerViandasDeDestino()
+
+SD -> SD: Marcar distribución como terminada (terminada = true)
+
+
+
+-----------------
+
+
+'cantidadViandasVirtual = heladera.cantidadViandas() + lasCantidadesDeLasSolicitudesDeViandasAAgregar + lasCantidadesDeLasSolicitudesDeViandasAQuitar
+
+--------------------
+
+1. El colaborador ya tiene una sesión iniciada.
+2. El colaborador detalla la heladera de origen y destino, y el motivo de distribución. 
+    2.1. El colaborador toca un botón para comenzar la distribución.
+    2.2. Se valida que la (heladeraOrigen.cantidadViandas() - distribucion.cantidadViandas) > 0.
+    2.3. Se agrega al historial de contribuciones de la persona.
+3. Se manda la solicitud de apertura de la heladera de origen para sacar viandas. Empieza a correr el cronómetro de 3 hs. 
+4. El colaborador se dirige a la heladera de origen y se verifica que la solicitud sea válida.
+    4.1. El colaborador abre la heladera de origen y saca las viandas. 
+    4.2. La solicitud de algún modo debe llamar el metodo quitarViandasDeOrigen() de la distribución y quitar las viandas que efectivamente quito.
+5. Se manda la solicitud de apertura de la heladera de destino para ingresar viandas. Empieza a correr el cronómetro de 3 hs.
+6. El colaborador se dirige a la heladera de destino y se verifica que la solicitud sea valida.
+    6.1. Se valida que la heladeraDestino.cantidadViandasVirtual() < heladeraDestino.cantidadMáximaViandas
+    6.1. El colaborador ingresa las viandas a la heladera de destino. 
+    6.2. La solicitud de algún modo debe llamar el metodo ponerViandasDeDestino() de la distribución y meter las viandas que quitó de la heladera origen en la de destino.
+    6.3. Se marca la distribucion como terminada (terminada = true).
+    
+'/
+
+@enduml

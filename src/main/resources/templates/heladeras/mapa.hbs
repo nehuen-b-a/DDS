@@ -1,0 +1,118 @@
+{{#partial "contenido"}}
+    <!-- Side Bar -->
+    <section class="row flex-grow-1 ms-sm-5 me-sm-5 mt-3 ms-3 me-3">
+        <!-- Sidebar -->
+        <nav class="col-md-4 pt-4 sidebar">
+            <!-- Barra de Búsqueda-->
+            <div class="input-group mb-4 pt-1">
+                <input type="text" id="search-input" class="form-control search" placeholder="Buscar heladeras...">
+                <span class="input-group-text border-start-0 clic-card">
+                    <span class="iconify" data-icon="mdi:magnify" data-width="20" data-height="20"></span>
+                </span>
+            </div>
+
+            {{#if mostrarPersonaJuridica}}
+                <div class="dropdown mb-4">
+                    <button class="filter-button dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Seleccionar Filtro
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="/heladeras?q=">
+                                <span class="iconify me-2" data-icon="tabler:world" data-width="24"></span>
+                                <span class="text-truncate">Todas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="/heladeras?q=misHeladeras">
+                                <span class="iconify me-2" data-icon="mdi:refrigerator-outline" data-width="24"></span>
+                                <span class="text-truncate">Mis heladeras</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="/heladeras?q=heladerasConAlerta">
+                                <span class="iconify me-2" data-icon="mingcute:alert-fill" data-width="24"></span>
+                                <span class="text-truncate">Mis heladeras con alerta</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            {{/if}}
+
+            <!-- Resultados de Búsqueda -->
+            <div id="heladeras-list" class="scrollable-results">
+                {{#each heladeras}}
+                    <a class="card rounded-3 transition-card mb-2 clic-card {{#if this.estaActiva}}card-activada{{else}}card-desactivada no-pointer{{/if}}"
+                       {{#if this.estaActiva}}href="heladeras/{{this.id}}"{{/if}}
+                       data-id="{{this.id}}">
+                        <div class="card-result-body">
+                            <h5 class="card-result-title">{{this.nombre}}</h5>
+                            <p class="card-result-text">{{this.direccion.nomenclatura}}</p>
+                            <p class="card-result-text">{{this.viandas.length}} viandas dentro de la heladera</p>
+                            <p class="card-result-text">Capacidad máxima de {{this.capacidadMaximaViandas}} viandas</p>
+                            <p class="card-result-text">Estado actual: {{this.estado}}</p>
+                        </div>
+                    </a>
+                {{/each}}
+            </div>
+        </nav>
+
+        <!-- Mapa -->
+        <main class="col-md-8 pt-4 d-flex flex-column">
+            <div id="map"></div>
+        </main>
+    </section>
+
+    <!-- Script para manejar el mapa y los datos de heladeras -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            window.heladeras = {{{jsonHeladeras}}};  // Define heladeras globalmente
+
+            console.log(heladeras);  // Verifica los datos en la consola
+
+            // Inicializar los marcadores del mapa
+            addMarkers(heladeras, function() {
+                window.location.href = `heladeras/${this.heladera.id}`;
+            });
+
+            // Capturar el input de búsqueda
+            var searchInput = document.getElementById('search-input');
+
+            // Filtrar y actualizar los resultados en el sidebar y el mapa
+            searchInput.addEventListener('input', function() {
+                var searchTerm = searchInput.value.toLowerCase();
+                var filteredHeladeras = heladeras.filter(function(heladera) {
+                    return heladera.nombre.toLowerCase().includes(searchTerm) ||
+                            heladera.direccion.nomenclatura.toLowerCase().includes(searchTerm);
+                });
+
+                // Actualizar la lista de heladeras en el sidebar
+                var heladerasList = document.getElementById('heladeras-list');
+                heladerasList.innerHTML = '';  // Limpiar resultados anteriores
+
+                filteredHeladeras.forEach(function(heladera) {
+                    var heladeraCard = `
+                        <a href="/heladeras/${heladera.id}" class="card rounded-3 transition-card mb-2 clic-card" data-id="${heladera.id}">
+                            <div class="card-result-body">
+                                <h5 class="card-result-title">${heladera.nombre}</h5>
+                                <p class="card-result-text">${heladera.direccion.nomenclatura}</p>
+                                <p class="card-result-text">Tiene ${heladera.cantidadViandas} viandas</p>
+                                <p class="card-result-text">Capacidad de ${heladera.capacidadMaximaViandas} viandas</p>
+                                <p class="card-result-text">Estado actual: ${heladera.estado}}</p>
+                            </div>
+                        </a>
+                    `;
+                    heladerasList.insertAdjacentHTML('beforeend', heladeraCard);
+                });
+
+                // Eliminar los marcadores anteriores del mapa y agregar los nuevos
+                clearMarkers();  // Llamar a la función para limpiar los marcadores existentes
+                addMarkers(filteredHeladeras, function() {
+                    window.location.href = `/heladeras/${this.heladera.id}`;
+                });
+            });
+        });
+    </script>
+
+{{/partial}}
+{{> templates/base titulo="Mapa" mostrarMapa= true buscadorMapa=true mostrarSeccion=true seccion="Mapa" mostrarIrAtras=true paginaAtras="/" }}

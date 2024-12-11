@@ -1,0 +1,54 @@
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+src/*.pdf
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# maven build
+target/**
+
+# IJ files
+*.iml
+.idea/**
+
+# Extra: live share
+!/.codetogether.ignore
+
+# tmp de carga masiva
+/tmp
+
+# variables de entorno
+.env
+
+# credenciales de persistencia
+/src/main/resources/META-INF/persistence.xml
+/src/test/resources/META-INF/persistence.xml
+/JavaSample-tcplocalhost1883
+
+# Si los archivos de configuración de persistencia aún aparecen en Git,
+# elimínalos del seguimiento usando los siguientes comandos:
+#
+#   git rm --cached src/main/resources/META-INF/persistence.xml
+#   git rm --cached src/test/resources/META-INF/persistence.xml
+#
+# Esto eliminará los archivos del control de versiones sin borrarlos de tu sistema de archivos local.
+# Luego, realiza un commit y push para aplicar el cambio al repositorio.

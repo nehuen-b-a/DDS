@@ -1,0 +1,44 @@
+{{# partial "contenido"}}
+
+
+<div class="container offerForm-container">
+    <h2 class="offerForm-title">Agregar Oferta</h2>
+    <p class="offerForm-description">Complete los datos y agregue una nueva oferta para colaborar con nosotros.</p>
+    <form method="POST" action="/ofertas/agregarOferta" enctype="multipart/form-data">
+        <!-- Nombre de la oferta -->
+        <div class="mb-3">
+            <label for="offerName" class="offerForm-label">Nombre</label>
+            <input name = "nombre" type="text" class="offerForm-control" id="offerName" placeholder="Ingrese el nombre de la oferta">
+        </div>
+
+        <!-- Categoría / rubro-->
+        <div class="mb-3">
+            <label for="category" class="offerForm-label">Categoría</label>
+            <select class="offerForm-select" id="category" name = "categoria">
+                <option value="">Seleccione una categoría</option>
+                {{#each rubros}}
+                <option value="{{this.nombre}}">{{this.nombre}}</option>
+                {{/each}}
+            </select>
+        </div>
+
+        <!-- Puntos necesarios -->
+        <div class="mb-3">
+            <label for="points" class="offerForm-label">Puntos necesarios</label>
+            <input name = "puntos" type="number" class="offerForm-control" id="points" placeholder="Ingrese los puntos necesarios">
+        </div>
+
+        <!-- Imagen (opcional) -->
+        <div class="mb-3">
+            <label for="image" class="offerForm-label">Imagen (opcional)</label>
+            <input name ="imagen" type="file" class="offerForm-control-file" id="imagen">
+        </div>
+
+        <!-- Botón de enviar -->
+        <button type="submit" class="btn submit-btn">Agregar Oferta</button>
+    </form>
+</div>
+
+{{/partial}}
+
+{{> templates/base titulo="Agregar oferta" mostrarPersonaJuridica=true mostrarIrAtras=true paginaAtras="/ofertas" mostrarSeccion=true seccion="Agregar oferta"}}

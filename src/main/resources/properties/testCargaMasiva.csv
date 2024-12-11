@@ -1,0 +1,6 @@
+Tipo Doc;Documento;Nombre;Apellido;Mail;Fecha de colaboracion;Forma de colaboracion;Cantidad
+DNI;12345678;Nehuen;Balian Amaros;nbalianamaros@frba.utn.edu.ar;25/05/2024;DONACION_VIANDAS;3
+PASAPORTE;AA1234567;Rocio;Ochoa Charlin;rochoacharlin@frba.utn.edu.ar;26/05/2024;REDISTRIBUCION_VIANDAS;5
+PASAPORTE;AA1234578;Marco;Bravo;mbravopichihua@frba.utn.edu.ar;26/05/2024;REDISTRIBUCION_VIANDAS;5
+DNI;12345679;Facundo;Gauna;fgaunasoma@frba.utn.edu.ar;27/05/2024;ENTREGA_TARJETAS;1
+DNI;45566219;Eitan;Wajsberg;ewajsberg@frba.utn.edu.ar;27/05/2024;DONACION_DINERO;1

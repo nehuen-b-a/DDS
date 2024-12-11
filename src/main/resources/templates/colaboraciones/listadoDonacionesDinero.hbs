@@ -1,0 +1,37 @@
+{{#partial "contenido"}}
+     <div class="mt-5 ms-sm-5 me-sm-5 mt-3 pb-3 ms-3 me-3 mb-5">
+         <a href="/donacionDinero/nuevo" class="d-flex justify-content-end mb-3 align-items-center">
+             <label class="d-flex align-items-center justify-content-center boton">
+                 Donar dinero
+                 <span class="iconify ms-2" data-icon="material-symbols:add" data-width="24" data-height="24"></span>
+             </label>
+         </a>
+        <div class="row g-3">
+            {{#each donacionDinero}}
+                <div class="col-md-4 position-relative">
+                    <button type="button" class="delete position-absolute top-0 end-0 me-2" onclick="openModal('{{this.id}}', 'donacionDinero', null)">
+                        <span class="iconify" data-icon="mdi:remove" data-width="18" data-height="18"></span>
+                    </button>
+                    <div class="distribution-card">
+                        <a href="/donacionDinero/{{this.id}}/edicion" class="dark-text">
+                            <div class="row mb-2">
+                                <span class="d-flex fw-bold fs-5">{{this.fecha}}</span>
+                            </div>
+                            <div class="row mb-2">
+                                <span><strong>Monto:</strong> {{this.monto}}</span>
+                            </div>
+                            <div class="row mb-2">
+                                <span><strong>Frecuencia:</strong> {{this.unidadFrecuencia}}</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+     <script src="/js/modalEliminacion.js"></script>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{{/partial}}
+
+{{> templates/base titulo="Donacion de dinero" mostrarSeccion=true seccion="Donación de dinero" mostrarIrAtras=true paginaAtras="/" }}

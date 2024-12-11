@@ -1,0 +1,1007 @@
+@startuml diagramaDeClasesDominio.
+
+' -----------------------------------------
+
+class PersonaHumana {
+ - id: Long
+ - usuario: Usuario
+ - tipoDocumento: TipoDocumento
+ - nroDocumento: String
+ - contacto: Contacto
+ - direccion: Direccion
+ - nombre: String
+ - apellido: String
+ - fechaNacimiento: LocalDate
+ - contribucionesElegidas: Set<FormasContribucionHumanas>
+ - contribuciones: Set<Contribucion>
+ - ofertasCanjeadas: Set<OfertaCanjeada>
+ - formulario: List<Respuesta>
+ - tarjetasColaboracion: List<Tarjeta>
+ - tarjetaEnUso: Tarjeta
+ + puntosGastados(): float
+ + calcularPuntajeNeto(): float
+ + agregarContribucion(contribucion: Contribucion): void
+ + agregarOfertaCanjeada(ofertaCanjeada: OfertaCanjeada): void
+ + agregarTarjetaSinEntregar(tarjeta: Tarjeta): void
+ + agregarRespuestaAlFormulario(respuesta: Respuesta): void
+ + agregarFormaDeContribucion(forma: FormasContribucionHumanas): void
+ + quitarFormaDeContribucion(forma: FormasContribucionHumanas): void
+ + usarTarjeta(heladera: Heladera): void
+ + asignarTarjetaParaColaborar(tarjeta: Tarjeta): void
+ + serNotificadoPor(mensaje: Mensaje): void
+}
+
+PersonaHumana --> " * " Contribucion
+PersonaHumana --> Contacto
+PersonaHumana --> Direccion
+PersonaHumana --> " * " FormasContribucionHumanas
+PersonaHumana --> Usuario
+PersonaHumana --> " * " OfertaCanjeada
+PersonaHumana --> " * " Respuesta
+PersonaHumana --> " * "Tarjeta
+PersonaHumana --> Tarjeta
+PersonaHumana ..|> IObserverNotificacion
+PersonaHumana --> TipoDocumento
+
+' -----------------------------------------
+
+interface IObserverNotificacion {
+ + serNotificadoPor(mensaje: Mensaje): void
+}
+
+note right
+Desacopla al notificador del notificado
+end note
+
+' -----------------------------------------
+
+class Vianda {
+ - fechaCaducidad: LocalDate
+ - entregada: boolean
+ - comida: String
+ - pesoEnGramos: float
+ - fechaDonacion: LocalDate
+ + calcularPuntaje(): float
+ + estaVencida(): boolean
+}
+
+Vianda ..|> Contribucion
+
+' -----------------------------------------
+
+class PublicadorSolicitudApertura {
+  - client: MqttClient
+  - static broker: String
+
+  + publicarSolicitudApertura(codigoTarjeta: String, fecha: LocalDateTime, idHeladera: Long): void
+}
+Heladera ..> PublicadorSolicitudApertura
+
+' -----------------------------------------
+
+class Heladera {
+ - id: Long
+ - nombre: String
+ - direccion: Direccion
+ - fechaRegistro: LocalDate
+ - capacidadMaximaViandas: int
+ - modelo: Modelo
+ - viandas: Set<Vianda>
+ - estado: EstadoHeladera
+ - temperaturaEsperada: float
+ - historialEstados: List<CambioEstado>
+ - historialTemperaturas: List<CambioTemperatura>
+ - solicitudesDeApertura: List<SolicitudApertura>
+ - gestorSuscripciones: GestorSuscripciones
+ - static minutosMargenFallaConexion: int
+
+ + ingresarViandas(viandas: List<Vianda>): void
+ + quitarViandas(viandas: List<Vianda>): void
+ + calcularMesesActiva(): int
+ + calcularPuntaje(): float
+ + cambiarEstado(nuevoEstado: CambioEstado): void
+ - agregarCambioDeEstado(cambioEstado: CambioEstado): void
+ - temperaturaEnRango(temperatura: float): boolean
+ + cambiarTemperatura(temperatura: float): void
+ - agregarTemperaturaAlHistorial(temperatura: float): void
+ + estaActiva(): boolean
+ + validarApertura(codigoTarjeta: String): boolean
+ + agregarSolicitudApertura(solicitud: SolicitudApertura): void
+ + cantidadViandas(): int
+ + cantidadViandasVirtuales(): int
+ + cantidadViandasQuitadasVirtualmente(): int
+ + cantidadViandasIngresadasVirtualmente(): int
+ + recibirAlertaFraude(): void
+ + detectarFallaDeConexion(): void
+ + quitarVianda(vianda: Vianda): void
+ + ingresarVianda(vianda: Vianda): void
+ - avisoGestorParaNotificarCantidades(): void
+}
+
+Heladera --> " * " Vianda
+Heladera --> Modelo
+Heladera --> Direccion
+Heladera ..|> Contribucion
+Heladera --> EstadoHeladera
+Heladera --> " * " CambioEstado
+Heladera --> " * " CambioTemperatura
+Heladera --> " * " SolicitudApertura
+Heladera --> GestorSuscripciones
+
+' -----------------------------------------
+
+class ReceptorAperturaHeladera {
+ - IRepositorioHeladera repositorioHeladera
+ + messageArrived(topic: String, mensaje: MqttMessage): void
+ - dividirPayload(payload: String): String[]
+ - procesarMensaje(idHeladera: Long, tipoMensaje: String, codigoTarjeta: String): void
+}
+
+ReceptorHeladera ..> Heladera
+
+' -----------------------------------------
+
+class ValidadorConexion {
+ - heladerasRepositorio: IRepositoryHeladera
+ + validarConexiones(): void
+}
+
+ValidadorConexion ..> Heladera
+
+note right
+La falla de conexión se verificará validando la última recepción de temperatura de cada heladera con un cronjob: ValidadorConexion.
+La cantidad de tiempo límite desde que se recibió la última temperatura estará parametrizada.
+end note
+
+' -----------------------------------------
+
+class GestorSuscripciones {
+  - suscripcionesPorTipo: Map<TipoSuscripcion, List<Suscripcion>>
+  + notificar(tipo: TipoSuscripcion, heladera: Heladera): void
+  + agregarSuscripcionPorTipo(tipo: TipoSuscripcion, suscripcion: Suscripcion, heladera: Heladera): void
+  + suscripcionValida(suscriptor: IObserverNotificacion, heladera: Heladera): boolean
+}
+
+GestorSuscripciones --> " * " Suscripcion
+GestorSuscripciones --> " * " TipoSuscripcion
+
+enum TipoSuscripcion {
+ FALTAN_N_VIANDAS
+ DESPERFECTO
+ QUEDAN_N_VIANDAS
+}
+
+class Suscripcion {
+ - suscriptor: IObserverNotificacion
+ + notificar(heladera: Heladera): void
+ - armarMensaje(heladera: Heladera): Mensaje
+ # cumpleCondicion(heladera: Heladera): boolean
+ # armarCuerpo(heladera: Heladera): String
+}
+
+note bottom
+Utilizamos el patron Template, ya que todas las suscripciones
+tienen comportamiento en comun, el armado del mensaje y la notificacion
+para todas es el mismo, solo cambian las condiciones y el cuerpo del mensaje
+de las mismas.
+end note
+
+Suscripcion --> IObserverNotificacion
+Suscripcion ..> Heladera
+
+class QuedanNViandas {
+ - cantidadViandasDisponibles: int
+ # cumpleCondicion(heladera: Heladera): void
+ # armarCuerpo(heladera: Heladera): String
+}
+
+class FaltanNViandas {
+ - cantidadViandasParaLlenarse: int
+ # cumpleCondicion(heladera: Heladera): void
+ # armarCuerpo(heladera: Heladera): String
+}
+
+class Desperfecto {
+ - aceptada: boolean
+ - sugerencia: SugerenciaHeladera
+ + sugerirHeladeras(heladera: Heladera): SugerenciaHeladera
+ # cumpleCondicion(heladera: Heladera): void
+ # armarCuerpo(heladera: Heladera): String
+}
+
+QuedanNViandas --|> Suscripcion
+FaltanNViandas --|> Suscripcion
+Desperfecto --|> Suscripcion
+Desperfecto --> SugerenciaHeladera
+
+class SugerenciaHeladera {
+ - fechaRealizacion: LocalDate
+ - heladerasSugeridas: List<Heladera>
+ - heladerasEscogidas: List<Heladera>
+}
+
+' -----------------------------------------
+
+interface IAdapterPDF {
+ + exportarAPDF(titulo: String, parrafos: List<String>): void
+}
+
+class AdapterPDFiText {
+ + iText: ITextPDF
+ + exportarAPDF(titulo: String, parrafos: List<String>): void
+}
+
+AdapterPDFiText --> ITextPDF
+
+class ITextPDF {
+ + ruta: String
+ + generarPDF(titulo: String, parrafos: List<String>);
+}
+
+AdapterPDFiText ..|> IAdapterPDF
+
+class GeneradorReportes {
+ - reportes: List<Reporte>
+ - pdfAPI: IAdapterPDF
+ - temporalidad: Temporalidad
+ + generarReportes(): void
+ + calcularFechaInicio: LocalDate
+ + agregarReporte(reporte: Reporte): void
+ + quitarReporte(reporte: Reporte): void
+}
+
+GeneradorReportes --> " * " Reporte
+GeneradorReportes --> IAdapterPDF
+GeneradorReportes --> Temporalidad
+
+enum Temporalidad {
+ DIARIO
+ SEMANAL
+ MENSUAL
+ ANUAL
+}
+
+interface Reporte {
+ + generarReporte(fechaInicio: LocalDate, fechaFin: LocalDate): List<String>
+ + titulo(): String
+}
+
+class CantidadDeFallasPorHeladera {
+ - repositorioHeladera: IRepositorioHeladera
+ + generarReporte(fechaInicio: LocalDate, fechaFin: LocalDate): List<String>
+ + titulo(): String
+ - cantidadFallas(heladera: Heladera, fechaInicio: LocalDate, fechaFin: LocalDate): int
+}
+
+CantidadDeFallasPorHeladera ..|> Reporte
+CantidadDeFallasPorHeladera ..> Heladera
+
+class MovimientoViandasPorHeladera {
+ - repositorioHeladera: IRepositorioHeladera
+ + generarReporte(fechaInicio: LocalDate, fechaFin: LocalDate): List<String>
+ + titulo(): String
+ - cantidadViandasSegunAccion(heladera: Heladera, accion: AccionApertura, fechaInicio: LocalDate, fechaFin: LocalDate): int
+}
+
+MovimientoViandasPorHeladera ..|> Reporte
+MovimientoViandasPorHeladera ..> Heladera
+MovimientoViandasPorHeladera ..> AccionApertura
+
+class CantidadViandasPorColaborador {
+ - repositorioColaboradores: IRepositorioPersonaHumana
+ + generarReporte(fechaInicio: LocalDate, fechaFin: LocalDate): List<String>
+ + titulo(): String
+ - cantidadViandasDonadadas(persona: PersonaHumana, fechaInicio: LocalDate, fechaFin: LocalDate): int
+}
+
+CantidadViandasPorColaborador ..|> Reporte
+CantidadViandasPorColaborador ..> PersonaHumana
+
+' -----------------------------------------
+
+class SolicitudApertura {
+ - fechaSolicitud: LocalDateTime
+ - tarjeta: Tarjeta
+ - aperturaConcretada: boolean
+ - fechaConcrecion: LocalDateTime
+ - accion: AccionApertura
+}
+
+SolicitudApertura --> AccionApertura
+
+enum AccionApertura {
+ QUITAR_VIANDA
+ INGRESAR_VIANDA
+}
+' -----------------------------------------
+
+class CambioEstado {
+ - fechaCambio: LocalDate
+ - estado: EstadoHeladera
+ + esUnaFalla(): boolean
+}
+
+CambioEstado --> EstadoHeladera
+
+note bottom
+Permite trazabilidad
+end note
+
+' -----------------------------------------
+
+class Incidente {
+ - heladera: Heladera
+ - fecha: LocalDateTime
+ - tecnicoSeleccionado: Tecnico
+ - visitas: List<Visita>
+ - solucionado: bool
+ - tipoIncidente: TipoIncidente
+ - tipoAlerta: TipoAlerta
+ - colaborador: PersonaHumana
+ - descripcionDelColaborador: String
+ - foto: Image
+ + registrarVisita(visita: Visita): void
+ + asignarTecnico(): void
+}
+
+Incidente --> TipoIncidente
+Incidente --> " * " Visita
+Incidente --> Tecnico
+Incidente --> TipoAlerta
+Incidente --> PersonaHumana
+
+interface TipoIncidente {
+ + obtenerDescripcionIncidente(incidente: Incidente): String
+}
+
+TipoIncidente ..> Incidente
+
+class Visita {
+ - descripcion: String
+ - foto: Image
+}
+
+class Alerta {
+ + obtenerDescripcionIncidente(incidente: Incidente): String
+}
+
+Alerta ..|> TipoIncidente
+
+class FallaTecnica {
+ + obtenerDescripcionIncidente(incidente: Incidente): String
+}
+
+FallaTecnica ..|> TipoIncidente
+
+enum TipoAlerta {
+ FRAUDE
+ FALLA_CONEXION
+ FALLA_TEMPERATURA
+}
+
+' -----------------------------------------
+
+class ServicioGeoRef {
+ - instancia: ServicioGeoRef
+ - retrofit: Retrofit
+ + obtenerDetallesUbicacion(latitud: double, longitud: double): Direccion
+}
+
+' -----------------------------------------
+class ReceptorTemperatura {
+    - client: MqttClient
+    - repositorioHeladeras: RepositorioHeladera
+
+    + subscribe(topic: String): void
+    + connectionLost(cause: Throwable): void
+    + messageArrived(topic: String, mqttMessage: MqttMessage): void
+    - dividirPayload(payload: String): String[]
+    - procesarMensaje(idHeladera: Long, tipoMensaje: String, valor: int): void
+}
+
+class ReceptorMovimiento {
+    - repositorioHeladeras: RepositorioHeladera
+    + messageArrived(topic: String, mensaje: MqttMessage): void
+    - dividirPayload(payload: String): String[]
+    - procesarMensaje(idHeladera: Long, tipoMensaje: String, valor: Boolean): void
+}
+
+ReceptorMovimiento ..> Heladera
+ReceptorTemperatura ..> Heladera
+
+' -----------------------------------------
+
+class CambioTemperatura {
+ - fecha: LocalDateTime
+ - temperaturaCelsius: float
+}
+
+' -----------------------------------------
+
+class CargaMasivaColaboraciones {
+ - personaHumanaRepo: IRepositorioPersonaHumana
+ - documentoRepo: IRepositorioDocumento
+ - adapterMail: AdapterMail
+ + cargarColaboraciones(dataCSV: File): void
+}
+
+CargaMasivaColaboraciones --> AdapterMail
+
+' -----------------------------------------
+
+class Modelo {
+ - modelo: String
+ - temperaturaMinima: float
+ - temperaturaMaxima: float
+}
+
+' -----------------------------------------
+
+class DistribucionVianda {
+ - heladeraOrigen: Heladera
+ - heladeraDestino: Heladera
+ - cantidadViandas: int
+ - motivo: String
+ - fecha: LocalDate
+ - terminada: bool
+ - viandasAMover: List<Vianda>
+ + quitarViandasDeOrigen(viandasAQuitar: List<Vianda>): void
+ /'{
+      origen.quitarViandas(viandasAQuitar)
+      viandasAMover = viandasAQuitar
+   }'/
+ + ponerViandasEnDestino():void
+ /' {
+      destino.meterViandas(viandasAMover)
+   }'/
+ + distribuir(viandas: List<Vianda>): void
+ + calcularPuntaje(): float
+}
+
+DistribucionVianda --> Heladera
+DistribucionVianda --> Heladera
+DistribucionVianda ..> " * " Vianda
+DistribucionVianda ..|> Contribucion
+
+' -----------------------------------------
+
+interface Contribucion {
+ + calcularPuntaje(): float
+ + obtenerTipoContribucion(): TipoContribucion
+ + obtenerFechaRegistro(): LocalDate
+}
+
+Contribucion ..> TipoContribucion
+
+enum TipoContribucion {
+ DISTRIBUCION_VIANDAS
+ DONACION_DINERO
+ DONACION_VIANDA
+ ENTREGA_TARJETAS
+ ENCARGARSE_DE_HELADERA
+ OFRECER_OFERTA
+}
+
+note bottom
+Las contribuciones comparten la funcionalidad de sumar puntos, por lo
+tanto, decidimos que implementen una interfaz de contribución y de esta
+forma agrupar las contribuciones, permitiendo trazabilidad.
+end note
+
+' -----------------------------------------
+
+class DonacionDinero {
+ - monto: float
+ - frecuencia: Integer
+ - unidadFrecuencia: Temporalidad
+ - fecha: LocalDate
+ + calcularPuntaje(): float
+}
+
+DonacionDinero ..|> Contribucion
+DonacionDinero --> Temporalidad
+
+' -----------------------------------------
+
+class Oferta {
+ - nombre: String
+ - cantidadPuntosNecesarios: float
+ - imagen: Image
+ - rubro: Rubro
+ - organizacion: PersonaJuridica
+ + canjear(): void
+}
+
+Oferta --> PersonaJuridica
+Oferta --> Rubro
+
+class OfertaCanjeada {
+ - oferta: Oferta
+ - fechaCanje: LocalDateTime
+}
+
+OfertaCanjeada --> Oferta
+
+
+' -----------------------------------------
+
+class Rubro {
+ - nombre: String
+}
+
+' -----------------------------------------
+
+interface MedioDeContacto {
+ + enviar(mensaje: Mensaje, contacto: Contacto)
+}
+
+MedioDeContacto ..> Mensaje
+
+' -----------------------------------------
+
+class WhatsApp {
+ - adaptador: AdapterWhatsApp
+ + enviar(mensaje: Mensaje)
+}
+
+WhatsApp ..|> MedioDeContacto
+WhatsApp -> AdapterWhatsApp
+
+' -----------------------------------------
+
+interface AdapterWhatsApp{
++ enviar(telefonoUsuario: String, texto: String);
+}
+
+' -----------------------------------------
+
+class AdaptadaWhatsAppTwillio {
+ + enviar(telefonoUsuario: String, texto: String);
+}
+
+AdaptadaWhatsAppTwillio ..|> AdapterWhatsApp
+
+' -----------------------------------------
+
+class Telegram {
+ - adaptador: AdapterTelegram
+ + enviar(mensaje: Mensaje, contacto: Contacto)
+}
+
+Telegram ..|> MedioDeContacto
+Telegram -> AdapterTelegram
+
+' -----------------------------------------
+
+interface AdapterTelegram{
++ enviar(userID: String, texto: String);
+}
+
+' -----------------------------------------
+
+class AdaptadaTelegramBot {
+ + enviar(userID: String, texto: String);
+}
+
+AdaptadaTelegramBot ..|> AdapterTelegram
+
+' -----------------------------------------
+
+
+class Telefono {
+ + enviar(mensaje: Mensaje, contacto: Contacto)
+}
+
+Telefono ..|> MedioDeContacto
+
+' -----------------------------------------
+
+class Mail {
+ - adapterMail: AdapterMail
+ + enviar(mensaje: Mensaje, contacto: Contacto)
+}
+
+Mail ..|> MedioDeContacto
+Mail -> AdapterMail
+
+' -----------------------------------------
+
+interface AdapterMail {
+ + enviar(mensaje: Mensaje, correo: String)
+}
+
+AdapterMail ..> Mensaje
+
+' -----------------------------------------
+
+class AdapterConcretoPuntos {
+ - servicioRecomendacionPunto: RecomendacionPuntosServicio
+ + recomendacion(latitud: String, longitud: String, radio: float): List<Coordenada>
+}
+
+note top
+Por mantenibilidad, cohesion y testeabilidad utilizamos el patron
+adapter.
+end note
+
+AdapterConcretoPuntos ..|> AdapterRecomendacionPuntosHeladera
+AdapterConcretoPuntos --> RecomendacionPuntosServicio
+
+' -----------------------------------------
+
+class RecomendacionPuntosServicio {
+ - urlAPI: String
+ - retrofit: Retrofit
+ + listadoPuntosRecomendados(float radio, String latitud, String longitud): ListadoPuntosRecomendados
+}
+
+RecomendacionPuntosServicio ..> ListadoPuntosRecomendados
+
+' -----------------------------------------
+
+class ListadoPuntosRecomendados {
+ - parametro: Area
+ + puntos: List<Coordenada>
+}
+
+ListadoPuntosRecomendados --> Area
+ListadoPuntosRecomendados --> " * " Coordenada
+
+' -----------------------------------------
+
+class RecomendacionDePuntos {
+ - adapterPuntos: AdapterRecomendacionPuntosHeladera
+ + recomendacion(latitud: String, longitud: String, radio: float): List<Coordenada>
+}
+
+RecomendacionDePuntos --> AdapterRecomendacionPuntosHeladera
+
+' -----------------------------------------
+
+class AdaptadaJavaXMail {
+ + enviar(mensaje: Mensaje, correo: String)
+}
+
+AdaptadaJavaXMail ..|> AdapterMail
+
+
+' -----------------------------------------
+
+class Tecnico {
+ - usuario: Usuario
+ - nombre: String
+ - apellido: String
+ - tipoDocumento: TipoDocumento
+ - nroDocumento: String
+ - cuil: String
+ - contacto: Contacto
+ - coordenada: Coordenada
+ - distanciaMaximaEnKmParaSerAvisado: double
+}
+
+Tecnico --> Contacto
+Tecnico --> Coordenada
+Tecnico --> Usuario
+Tecnico --> TipoDocumento
+
+' -----------------------------------------
+
+class Area {
+ - coordenada: Coordenada
+ - radio: double
+}
+
+' -----------------------------------------
+
+class Mensaje {
+ - asunto: String
+ - cuerpo: String
+ - fecha: LocalDateTime
+ - destinatario: Usuario
+}
+
+Mensaje --> Usuario
+
+' -----------------------------------------
+
+class Contacto {
+ - telefono: String
+ - celular: String
+ - mail: String
+ - userIDTelegram: String
+ - mediosDeContacto: Set<MedioDeContacto>
+ + agregarMedioDeContacto(medioDeContacto: MedioDeContacto): void
+ + quitarMedioDeContacto(medioDeContacto: MedioDeContacto): void
+ + enviarMensaje(mensaje: Mensaje): void
+}
+
+Contacto --> "*" MedioDeContacto
+Contacto ..> Mensaje
+
+' -----------------------------------------
+class Opcion{
+ - campo: String
+}
+class Respuesta {
+ - pregunta: Pregunta
+ - respuestaLibre: String
+ - opcionesElegidas: Set<Opcion>
+}
+
+Respuesta --> Pregunta
+Respuesta --> "*" Opcion
+
+' -----------------------------------------
+abstract class Pregunta {
+ - campo: String
+ - activa: boolean
+ + esValida(respuesta: String): boolean
+}
+
+class MultipleChoice {
+ - opciones: Set<Opcion>
+ + esValida(respuesta: String): boolean
+}
+
+MultipleChoice ..|> Pregunta
+MultipleChoice --> "*" Opcion
+
+class PreguntaAbierta {
+ + esValida(respuesta: String): boolean
+}
+
+PreguntaAbierta ..|> Pregunta
+
+' -----------------------------------------
+
+class ReconocimientoTrabajoRealizado {
+ - static coeficientes: Map<String, float>
+ + calcularPuntaje(contribuciones: Set<Contribucion>, puntajeGastado: float): float
+}
+
+ReconocimientoTrabajoRealizado ..> " * " Contribucion
+
+note bottom
+Esta clase es un Singleton y los coeficientes se encuentran en un archivo de configuración.
+Utilizar este patrón de diseño en este caso no afecta la testeabilidad ya que no es
+necesario un mock.
+end note
+
+' -----------------------------------------
+
+class Tarjeta {
+ - codigo: String
+ - historialUsos: List<UsoDeTarjeta>
+ - fechaEntrega: LocalDate
+ - fechaBaja: LocalDate
+ + calcularPuntaje(): float
+ + agregarUso(usoTarjeta: UsoDeTarjeta): void
+ + cantidadDeUsos(dia: LocalDate): int
+}
+
+Tarjeta --> " * " UsoDeTarjeta
+Tarjeta ..|> Contribucion
+
+' -----------------------------------------
+
+class UsoDeTarjeta {
+ - fecha: LocalDateTime
+ - heladera: Heladera
+}
+
+UsoDeTarjeta --> Heladera
+
+note right
+Permite trazabilidad
+end note
+
+' -----------------------------------------
+
+class PersonaVulnerable {
+ - nombre: String
+ - fechaDeNacimiento: LocalDate
+ - fechaDeRegistro: LocalDate
+ - dirección: Direccion
+ - menoresACargo: int
+ - nroDocumento: String
+ - tipoDocumento: String
+ - donanteQueLoRegistro: PersonaHumana
+ - tarjetas: List<Tarjeta>
+ - tarjetaEnUso: Tarjeta
+ + usarTarjeta(heladera: Heladera, vianda: Vianda): void
+}
+
+PersonaVulnerable --> Direccion
+PersonaVulnerable --> PersonaHumana
+PersonaVulnerable --> " * " Tarjeta
+PersonaVulnerable --> TipoDocumento
+
+' -----------------------------------------
+
+class PersonaJuridica {
+ - usuario: Usuario
+ - contacto: Contacto
+ - dirección: Direccion
+ - razonSocial: String
+ - tipo: TipoPersonaJuridica
+ - rubro: Rubro
+ - contribucionesElegidas: Set<FormasContribucionJuridicas>
+ - heladerasACargo: Set<Heladera>
+ - contribuciones: Set<Contribucion>
+ - ofertas: Set<Oferta>
+
+ + hacerseCargoDeHeladera(heladera: Heladera): void
+ + darDeBajaHeladera(heladera: Heladera): void
+ + agregarContribucion(contribucion: Contribucion): void
+ + puntosGastados(): float
+ + calcularPuntajeNeto(): float
+}
+
+PersonaJuridica --> " * " FormasContribucionJuridica
+PersonaJuridica --> " * " Oferta
+PersonaJuridica --> Rubro
+PersonaJuridica --> Contacto
+PersonaJuridica --> Direccion
+PersonaJuridica --> " * " Heladera
+PersonaJuridica --> TipoPersonaJuridica
+PersonaJuridica --> Usuario
+PersonaJuridica --> " * " Oferta
+PersonaJuridica --> TipoDocumento
+
+' -----------------------------------------
+
+class Direccion {
+ - calle: Calle
+ - altura: String
+ - municipio: Municipio 
+ - provincia: Provincia
+ + estaCercaDe(direccion: Direccion): boolean
+ + obtenerCoordenada(): Coordenada
+}
+
+class Calle {
+ - calle: String
+}
+
+class Municipio {
+ - municipio: String
+}
+
+class Provincia {
+ - provincia: String
+}
+
+Direccion --> Calle
+Direccion --> Municipio
+Direccion --> Provincia
+Direccion --> Coordenada
+Direccion ..> ServicioGeoRef
+
+' -----------------------------------------
+
+class Coordenada {
+ - latitud: String
+ - longitud: String
+}
+
+' -----------------------------------------
+
+interface AdapterRecomendacionPuntosHeladera {
+ + recomendacion(latitud: String, longitud: String, radio: float): Set<Coordenada>
+}
+
+AdapterRecomendacionPuntosHeladera ..> " * " Coordenada
+
+' -----------------------------------------
+
+enum FormasContribucionHumanas {
+ DISTRIBUCION_VIANDAS
+ DONACION_DINERO
+ DONACION_VIANDA y
+ ENTREGA_TARGETAS
+}
+
+enum FormasContribucionJuridica {
+ DONACION_DINERO
+ ENCARGARSE_DE_HELADERA
+ OFRECER_OFERTA
+}
+
+enum TipoPersonaJuridica {
+ GUBERNAMENTAL
+ ONG
+ EMPRESA
+ INSTITUCION
+}
+
+enum TipoDocumento {
+ LC
+ LE
+ DNI
+}
+
+enum EstadoHeladera {
+ FALLA_TEMPERATURA
+ ACTIVA
+ FRAUDE
+ FALLA_CONEXION
+ FALLA_TECNICA
+}
+
+' -----------------------------------------
+
+class Usuario {
+ - nombre: String
+ - clave: String
+ - rol: Rol
+ + cambiarClave(clave: String, validador: ValidadorDeClave): void
+}
+
+Usuario --> Rol
+Usuario ..> ValidadorDeClave
+
+' -----------------------------------------
+
+class ValidadorDeClave {
+ - validadores: Set<TipoValidacion>
+ + esValido(clave: String): boolean
+}
+
+ValidadorDeClave --> " * " TipoValidacion
+
+' -----------------------------------------
+
+interface TipoValidacion {
+ + validar(clave: String): boolean
+ + getMensajeError(): String
+}
+
+' -----------------------------------------
+
+class LongitudEstipulada {
+ - longitudMaxima: int
+ - longitudMinima: int
+ + validar(clave: String): boolean
+ + getMensajeError(): String
+}
+
+LongitudEstipulada ..|> TipoValidacion
+
+' -----------------------------------------
+
+class ListaDePeoresClavesMemorizados {
+ + validar(clave: String): boolean
+ + getMensajeError(): String
+}
+
+ListaDePeoresClavesMemorizados ..|> TipoValidacion
+
+' -----------------------------------------
+
+class AusenciaDeCredencialesPorDefecto {
+ - usuario: String
+ + validar(clave: String): boolean
+ + getMensajeError(): String
+}
+
+AusenciaDeCredencialesPorDefecto ..|> TipoValidacion
+
+' -----------------------------------------
+
+class Rol {
+ - nombre: String
+ - permisos: Set<Permiso>
+ + tenesPermiso(permiso: Permiso): boolean
+}
+
+Rol --> " * "Permiso
+
+' -----------------------------------------
+
+class Permiso {
+ - nombre: String
+}
+
+' -----------------------------------------
+
+@enduml

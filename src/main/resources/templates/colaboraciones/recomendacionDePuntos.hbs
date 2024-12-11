@@ -1,0 +1,75 @@
+{{#partial "contenido"}}
+    <section class="row g-2 gx-4 flex-grow-1 mt-5 ms-sm-5 me-sm-5 mt-3 ms-3 me-3">
+        <nav class="col-md-4 p-4 sidebar border border-color-999 rounded-4">
+            <h1 class="fs-3 text-center mt-3 mb-3">Recomendación de Puntos</h1>
+            <form class="mt-5" method="POST" action="/heladeras/nuevo/recomendacion">
+                <h4 class="fw-bold fs-5 mt-4 mb-2">Ubicación</h4>
+                <p class="mb-2">
+                    Elige la ubicación en el <b>mapa</b> haciendo clic en el lugar que deseas.
+                    También puedes ingresar manualmente las coordenadas de latitud y longitud.
+                </p>
+                <div class="col mb-2">
+                    <input type="text" id="latitud" class="w-100" name="latitud" placeholder="Latitud" value="{{dto.latitud}}" required>
+                </div>
+                <div class="col mb-2">
+                    <input type="text" id="longitud" class="w-100" name="longitud" placeholder="Longitud" value="{{dto.longitud}}" required>
+                </div>
+                <div class="col-12 mt-2">
+                    <input type="number" name="radio" class="w-100" placeholder="Radio (en km)" min="1" value="{{dto.radio}}" step="0.1">
+                </div>
+                <div class="col-12 mt-3">
+                    <button class="w-100" type="submit">Recomendarme</button>
+                </div>
+
+                {{#if error}}
+                    <div class="row mt-2 justify-content-center">
+                        <p id="error" class="error text-center">{{error}}</p>
+                    </div>
+                {{/if}}
+
+                {{#if hayRecomendaciones}}
+                    <div class="row">
+                        <hr>
+                        <p class="fs-7 fw-500 mt-4">Resultados ({{recomendaciones.length}})</p>
+                    </div>
+                    <div class="row">
+                        <div class="scrollable-results max-vh-20">
+                            {{#each recomendaciones}}
+                                <div class="card rounded-3 transition-card mb-2" role="button">
+                                    <div class="card-result-body" >
+                                        <p class="color-444 fw-600 mb-1">{{this.nombre}}</p>
+                                        <p class="fs-509 color-777 mb-0">{{this.direccion}}</p>
+                                    </div>
+                                </div>
+                            {{/each}}
+                        </div>
+                    </div>
+                {{/if}}
+            </form>
+        </nav>
+        <main class="col-md-8 d-flex flex-column">
+            <div id="map"></div>
+        </main>
+    </section>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var heladeras = {{{this.jsonHeladeras}}}
+            addMarkers(heladeras, function() {
+                // llena nombre e id en el campo de la heladera que tenga focus
+                var lv_input = $(":focus[id^='heladera']");
+                if (lv_input !== undefined) {
+                    lv_input.val(this.heladera.nombre);
+                    $("#"+lv_input.data("id")).val(this.heladera.id);
+                }
+            });
+
+            // Ejemplo de cómo capturar el evento de clic en el mapa
+            map.on('click', function (e) {
+                addNewMarker(e.lng, e.lat, '/img/location-icon.png');
+            });
+        });
+    </script>
+    <script src="https://unpkg.com/htmx.org@2.0.2" integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ" crossorigin="anonymous"></script>
+{{/partial}}
+
+{{> templates/base titulo="Recomendación de puntos" mostrarMapa=true mostrarSeccion=true seccion="Recomendación de puntos" mostrarPersonaJuridica=true mostrarIrAtras=true paginaAtras="/heladeras/nuevo" }}

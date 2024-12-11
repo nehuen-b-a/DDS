@@ -1,0 +1,51 @@
+{{#partial "contenido"}}
+    <div class="pt-5"></div>
+    <div class="m-5">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-12">
+                <form id="registroForm" class="me-4 ms-4" method="POST" action="/inicioSesion">
+                    <h1 class="title text-center">Inicio sesión</h1>
+                    <div class="pt-5 pb-4"></div>
+                    <div class="row">
+                        <input type="text" name="usuario" required pattern="^(?![._-])[a-zA-Z0-9._-]{5,50}(?<![._-])$" minlength="5" placeholder="Usuario" value="{{nombre}}">
+                    </div>
+                    <div class="row mt-2">
+                        <input type="password" id="clave" name="clave" required minlength="5" maxlength="50" placeholder="Contraseña" value="{{clave}}">
+                    </div>
+                    <div id="visibilidadClave" class="row mt-2">
+                        <div class="form-check d-flex align-items-center">
+                            <input class="form-check-input" type="checkbox" id="flexCheckDefault">
+                            <label class="form-check-label ms-2" for="flexCheckDefault">
+                                Mostrar contraseña
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <button type="submit">Iniciar sesión</button>
+                    </div>
+                    {{#if error}}
+                        <div class="row mt-2 justify-content-center">
+                            <p class="error text-center">{{error}}</p>
+                        </div>
+                    {{/if}}
+                </form>
+                <div class="row mt-5 mb-5 text-center">
+                    <hr>
+                    <label class="grey-text fw-bold">¿No tenés una cuenta? <a href="/tipoCuenta" class="light-blue">Regístrate</a> </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#flexCheckDefault').on('change', function() {
+                let passwordFieldType = $('#clave').attr('type') === 'password' ? 'text' : 'password';
+                $('#clave').attr('type', passwordFieldType);
+            });
+        });
+        const clave = document.getElementById('clave');
+    </script>
+{{/partial}}
+
+{{> templates/base titulo="Inicio sesión" mostrarRegistro=true }}

@@ -1,0 +1,119 @@
+{{# partial "contenido"}}
+
+    <div class="d-flex align-items-center justify-content-between container mt-4">
+        <h1> <span class="fw-bold" style="font-size: 35px;">Ofertas</span> </h1>
+        <a href="/ofertas/canjeadas" class="btn btn-primary">Mis Canjes</a>
+    </div>
+    <div class="d-flex align-items-center justify-content-between container mt-3">
+        <p1> <span style="font-size: 18px;"> Vea los productos y servicios ofrecidos y canjéenlos por sus puntos obtenidos.</span> </p1>
+    </div>
+
+    <div class="container mt-4">
+        <div class="category-container position-relative">
+            <button class="category-box" onclick="filtrarOfertas('Gastronomía')">Gastronomía</button>
+            <button class="category-box" onclick="filtrarOfertas('Electrónica')">Electrónica</button>
+            <button class="category-box" onclick="filtrarOfertas('Artículos para el hogar')">Artículos para el hogar</button>
+            <button class="category-box" id="otro-rubro-btn" onclick="mostrarRubros()">Otro</button>
+
+            <!-- Sección de rubros adicionales (desplegable) -->
+            <div id="otros-rubros" class="dropdown-content" style="display:none; position: absolute; top: 100%; right: 0; background-color: white; border: 1px solid #ddd; z-index: 1000;">
+                {{#each rubros}}
+                    <button class="dropdown-item" style="width: 100%; text-align: center;" onclick="filtrarOfertas('{{this.nombre}}')">{{this.nombre}}</button>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="row g-3">
+            <div class="col-md-12">
+                {{#each ofertas}}
+                    <div class="offer-card" data-rubro="{{this.rubro.nombre}}">
+                        {{#if this.imagen}}
+                            <img src="/{{this.imagen}}" alt="Imagen Oferta 1">
+                        {{else}}
+                            <p>No hay imagen disponible</p>
+                        {{/if}}
+                        <div class="offer-details">
+                            <p><strong>Categoría:</strong>{{this.rubro.nombre}}</p>
+                            <h4>{{this.nombre}}</h4>
+                            <p><strong>Puntos Requeridos:</strong>{{this.cantidadPuntosNecesarios}}</p>
+                            <button class="btn btn-dark text-white btn-canjear" onclick="canjearOferta({{this.id}})" data-bs-toggle="modal" data-bs-target="#confirmar_canje">Canjear</button>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+
+        <!-- Modal de confirmación -->
+        <div class="modal fade" id="confirmar_canje" tabindex="-1" aria-labelledby="confirmarCanjeLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmarCanjeLabel">Confirmar canje</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Desea canjear esta oferta?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary">Sí</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function mostrarRubros() {
+            const otrosRubros = document.getElementById('otros-rubros');
+            const otroRubroBtn = document.getElementById('otro-rubro-btn');
+            if (otrosRubros.style.display === 'block') {
+                otrosRubros.style.display = 'none';
+            } else {
+                // Establecer el ancho del desplegable al mismo ancho que el botón "Otro"
+                otrosRubros.style.width = `${otroRubroBtn.offsetWidth}px`;
+                otrosRubros.style.display = 'block';
+            }
+        }
+
+        function filtrarOfertas(rubro) {
+            console.log("filtrar");
+            const ofertas = document.querySelectorAll('.offer-card');
+            ofertas.forEach(oferta => {
+                if (oferta.getAttribute('data-rubro') === rubro) {
+                    oferta.style.display = 'block';
+                } else {
+                    oferta.style.display = 'none';
+                }
+            });
+        }
+
+        function canjearOferta(id) {
+            fetch('/ofertas/canjearOferta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ idOferta: id })
+            })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Error en el canje');
+                        return response.text();
+                    })
+                    .then(data => {
+                        alert(data);  // Mensaje de éxito desde el servidor
+                        // Redirigir a la página de colaboraciones o la que corresponda
+                        window.location.href = '/ofertas';
+                    })
+                    .catch(error => {
+                        alert(error.message);  // Manejo de errores
+                    });
+        }
+
+    </script>
+
+{{/partial}}
+
+{{> templates/base titulo="Ofertas" mostrarPersonaHumana=true mostrarIrAtras=true paginaAtras="/" mostrarSeccion=true seccion="Ofertas" pantallaOfertas = true}}

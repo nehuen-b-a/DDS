@@ -1,0 +1,43 @@
+{{#partial "contenido"}}
+    <div class="pt-5 pb-5"></div>
+    <div class="container-fluid mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-3 col-12">
+                <h1 class="title text-center">Cargar CSV</h1>
+                <div class="pt-2 pb-5  text-center">Migración de los donantes que ya existen, pero de manera masiva. Importar un archivo CSV para que la carga de datos sea más sencilla.</div>
+                <div class="row mt-2">
+                    <form id="form" method="POST" action="/cargaMasiva" enctype="multipart/form-data">
+                        <input type="file" id="file-upload" name="files" class="file-input">
+                        <label for="file-upload" class="d-flex align-items-center justify-content-center boton">
+                            Seleccionar archivo CSV
+                            <span class="iconify ms-2" data-icon="material-symbols:upload" data-width="24" data-height="24"></span>
+                        </label>
+                    </form>
+                </div>
+                {{#if error}}
+                    <div class="row mt-2 justify-content-center">
+                        <p class="error text-center">{{error}}</p>
+                    </div>
+                {{/if}}
+                {{#if success}}
+                    <div class="alert mt-4 alert-success text-center" role="alert">
+                        {{success}}
+                    </div>
+                {{/if}}
+                <div class="d-flex mt-4 justify-content-center align-items-center">
+                    <div id="loader" class="spinner-border" role="status">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/modalCSV.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+
+    </script>
+{{/partial}}
+
+{{> templates/base titulo="Carga CSV" mostrarAdmin=true mostrarIrAtras=true paginaAtras="/" mostrarSeccion=true seccion="Carga masiva" }}
